@@ -38,7 +38,6 @@ public class MemberControllerTest {
         String email = "newuser@example.com";
         String password = "securePass123";
         String nickname = "newbie";
-        String name = "신규유저";
         TimezoneType timezone = TimezoneType.ASIA_SEOUL;
 
         // when
@@ -48,13 +47,12 @@ public class MemberControllerTest {
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content("""
                                         {
-                                            "name": "%s",
-                                            "nickname": "%s",
                                             "email": "%s",
                                             "password": "%s",
+                                             "nickname": "%s",
                                             "timezone": "%s"
                                         }
-                                        """.formatted(name, nickname, email, password, timezone.name())
+                                        """.formatted(email, password, nickname,timezone.name())
                                 )
                 )
                 .andDo(print());
@@ -69,7 +67,7 @@ public class MemberControllerTest {
 
         // DB 검증: 실제 저장되었는지 확인 (비즈니스 로직 검증)
         Member savedMember = memberRepository.findByEmail(email)
-                .orElseThrow(() -> new AssertionError("User not saved in DB"));
+                .orElseThrow(() -> new AssertionError("Member not saved in DB"));
 
         assertThat(savedMember.getNickname()).isEqualTo(nickname);
         assertThat(savedMember.getTimezone()).isEqualTo(timezone);

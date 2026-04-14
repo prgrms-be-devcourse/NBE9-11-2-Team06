@@ -9,10 +9,6 @@ import jakarta.validation.constraints.Size;
 
 @Schema(description = "회원가입 요청")
 public record SignupRequest(
-        @Schema(description = "닉네임", example = "gildong")
-        @NotBlank(message = "닉네임은 필수입니다")
-        @Size(min = 2, max = 20)
-        String nickname,
 
         @Schema(description = "이메일", example = "user@example.com")
         @NotBlank(message = "이메일은 필수입니다.")
@@ -23,6 +19,12 @@ public record SignupRequest(
         @NotBlank(message = "비밀번호는 필수입니다")
         @Size(min = 6, max = 20)
         String password,
+
+        @Schema(description = "닉네임", example = "gildong")
+        @NotBlank(message = "닉네임은 필수입니다")
+        @Size(min = 2, max = 20)
+                String nickname,
+
         @Schema(
                 description = "시간대",
                 example = "ASIA_SEOUL",
