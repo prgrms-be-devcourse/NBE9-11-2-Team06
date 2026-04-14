@@ -7,7 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;
 
-public interface TimeBlockRepository extends JpaRepository<TimeBlock, Long> {
+public interface TimeBlockRepository extends JpaRepository<TimeBlock, Integer> {
 
     // 중복등록체크 (같은 모임에 같은 이름으로 이미 등록했는지)
     Optional<TimeBlock> findByMeetingAndParticipantName(Meeting meeting, Participant participant);
