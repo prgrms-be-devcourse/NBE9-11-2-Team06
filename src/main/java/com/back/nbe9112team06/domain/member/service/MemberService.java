@@ -3,7 +3,6 @@ package com.back.nbe9112team06.domain.member.service;
 import com.back.nbe9112team06.domain.member.dto.SignupRequest;
 import com.back.nbe9112team06.domain.member.dto.SignupResponse;
 import com.back.nbe9112team06.domain.member.dto.request.CheckEmailRequest;
-import com.back.nbe9112team06.domain.member.dto.request.CheckNicknameRequest;
 import com.back.nbe9112team06.domain.member.dto.response.AvailabilityResponse;
 import com.back.nbe9112team06.domain.member.entity.Member;
 import com.back.nbe9112team06.domain.member.repository.MemberRepository;
@@ -43,23 +42,17 @@ public class MemberService {
         return new AvailabilityResponse(memberRepository.existsByEmail(request.email()));
     }
 
-    public AvailabilityResponse checkNickname(CheckNicknameRequest request) {
-        return new AvailabilityResponse(memberRepository.existsByNickname(request.nickname()));
-    }
-
+//   Jwt 인증 구현 후에
 //    @Transactional
-//    public MessageResponse updateNickname(int memberId, UpdateNicknameRequest request) {
+//    public MemberDeleteResponse deleteUser(int memberId) {
 //        Member member = memberRepository.findById(memberId)
 //                .orElseThrow(() -> new NotFoundException("This user could not be found."));
 //
-//        if (memberRepository.existsByNickname(request.nickname())) {
-//            throw new ConflictException("This nickname " + request.nickname() + " is already existed!");
-//        }
-//
-//        member.updateNickname(request.nickname());
-//        return new MessageResponse("Nickname change successful.");
+//        memberRepository.delete(member);
+//        return new MemberDeleteResponse("Successfully deleted account", true);
 //    }
-//
+
+//    추후에 비밀번호 변경 지원시
 //    @Transactional
 //    public MessageResponse updatePassword(int memberId, UpdatePasswordRequest request) {
 //        Member member = memberRepository.findById(memberId)
@@ -68,18 +61,5 @@ public class MemberService {
 //        String hashedPassword = passwordEncoder.encode(request.password());
 //        member.updatePassword(hashedPassword);
 //        return new MessageResponse("Passcode change successful.");
-//    }
-//
-//    @Transactional
-//    public MemberDeleteResponse deleteUser(int memberId) {
-//        Member member = memberRepository.findById(memberId)
-//                .orElseThrow(() -> new NotFoundException("This user could not be found."));
-//
-//       // 관련 방 참여 정보 정리
-//      roomParticipantService.leaveAllRoomsByUserId(member.getId());
-//
-//        // ✅ 실제 삭제 (Soft Delete 아님)
-//        memberRepository.delete(member);
-//        return new MemberDeleteResponse("Successfully deleted account", true);
 //    }
 }

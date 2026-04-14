@@ -2,6 +2,8 @@ package com.back.nbe9112team06.domain.member.controller;
 
 import com.back.nbe9112team06.domain.member.dto.SignupRequest;
 import com.back.nbe9112team06.domain.member.dto.SignupResponse;
+import com.back.nbe9112team06.domain.member.dto.request.CheckEmailRequest;
+import com.back.nbe9112team06.domain.member.dto.response.AvailabilityResponse;
 import com.back.nbe9112team06.domain.member.service.MemberService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -32,5 +34,28 @@ public class MemberController {
         return memberService.signup(request);
     }
 
+    @PostMapping("/check-email")
+    @Operation(summary = "이메일 중복 체크")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "체크 성공"),
+            @ApiResponse(responseCode = "400", description = "유효성 검사 실패")
+    })
+    public AvailabilityResponse checkEmail(@RequestBody @Valid CheckEmailRequest request) {
+        return memberService.checkEmail(request);
+    }
+//    JWT 인증 구현 시
+//    @DeleteMapping
+//    @Operation(summary = "회원 탈퇴")
+//    @SecurityRequirement(name = "bearerAuth")
+//    @ApiResponses({
+//            @ApiResponse(responseCode = "200", description = "탈퇴 성공"),
+//            @ApiResponse(responseCode = "401", description = "인증 실패"),
+//            @ApiResponse(responseCode = "404", description = "사용자 없음")
+//    })
+//    public MemberDeleteResponse deleteUser(
+//            @AuthenticationPrincipal CustomUserDetails userDetails
+//    ) {
+//        return memberService.deleteUser(userDetails.getMemberId());
+//    }
 
 }
