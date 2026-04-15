@@ -1,5 +1,6 @@
 package com.back.nbe9112team06.domain.timeblock.controller;
 
+import com.back.nbe9112team06.domain.timeblock.dto.TimeBlockDeleteRequest;
 import com.back.nbe9112team06.domain.timeblock.dto.TimeBlockRequest;
 import com.back.nbe9112team06.domain.timeblock.service.TimeBlockService;
 import jakarta.validation.Valid;
@@ -17,5 +18,11 @@ public class TimeBlockController {
     public ResponseEntity<Void> addTimeBlock(@PathVariable Integer meetingId, @RequestBody @Valid TimeBlockRequest timeBlockRequest){
         timeBlockService.registerTimeBlock(meetingId, timeBlockRequest);
         return ResponseEntity.status(201).build();
+    }
+
+    @DeleteMapping("/meetings/{meetingId}/time-blocks")
+    public ResponseEntity<Void> deleteTimeBlock(@PathVariable Integer meetingId, @RequestBody @Valid TimeBlockDeleteRequest timeBlockDeleteRequest){
+        timeBlockService.deleteTImeBlock(meetingId, timeBlockDeleteRequest);
+        return ResponseEntity.status(204).build();
     }
 }

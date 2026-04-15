@@ -2,6 +2,7 @@ package com.back.nbe9112team06.domain.timeblock.service;
 
 import com.back.nbe9112team06.domain.meeting.entity.Meeting;
 import com.back.nbe9112team06.domain.participant.entity.Participant;
+import com.back.nbe9112team06.domain.timeblock.dto.TimeBlockDeleteRequest;
 import com.back.nbe9112team06.domain.timeblock.dto.TimeBlockRequest;
 import com.back.nbe9112team06.domain.timeblock.entity.AvailableDateTime;
 import com.back.nbe9112team06.domain.timeblock.entity.AvailableTime;
@@ -23,7 +24,7 @@ import java.util.*;
 @Service
 @RequiredArgsConstructor
 public class TimeBlockService {
-    //    private final MeetingRepository meetingRepository;
+    //private final MeetingRepository meetingRepository;
 //    private final ParticipantRepository participantRepository;
     private final TimeBlockRepository timeBlockRepository;
     private final AvailableDateTimeRepository availableDateTimeRepository;
@@ -123,5 +124,25 @@ public class TimeBlockService {
             map.get(date).add(time);
         }
         return map;
+    }
+
+    //삭제 메서드
+    @Transactional
+    public void deleteTImeBlock(Integer meetingId, TimeBlockDeleteRequest timeBlockDeleteRequest){
+        //  Meeting 존재 여부 확인
+        Meeting meeting = meetingRepository.findById(meetingId)
+                .orElseThrow(() -> new RuntimeException("회의가 존재하지 않습니다."));
+
+        // 요청한 사람이 이 모임 참여자인지 (Participant 인증)
+        Participant participant = participantRepository.findByMeetingAndGuestNameAndGuestPassword(
+                        meeting,
+                        timeBlockDeleteRequest.getGuestName(),
+                        timeBlockDeleteRequest.getGuestPassword())
+                .orElseThrow(() -> new RuntimeException("인증 실패"));
+
+        TimeBlock timeBlock = timeBlockRepository.findByMeetingAndParticipantName(meeting, participant)
+                .orElseThrow(() -> new RuntimeException("삭제할 회의가 없습니다."));
+
+        timeBlockRepository.delete(timeBlock);
     }
 }
