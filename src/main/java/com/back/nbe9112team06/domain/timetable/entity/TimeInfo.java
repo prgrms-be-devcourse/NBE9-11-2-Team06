@@ -1,7 +1,6 @@
 package com.back.nbe9112team06.domain.timetable.entity;
 
 import com.back.nbe9112team06.domain.adjustresult.entity.AdjustResult;
-import com.back.nbe9112team06.domain.meeting.entity.Meeting;
 import com.back.nbe9112team06.global.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -20,22 +19,27 @@ public class TimeInfo extends BaseEntity {
     @JoinColumn(name = "date_id")
     private DateInfo dateInfo;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "time_table_id")
-    private TimeTable timeTable;
+//    @ManyToOne(fetch = FetchType.LAZY)
+//    @JoinColumn(name = "time_table_id")
+//    private TimeTable timeTable;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "meeting_id")
-    private Meeting meeting;
+//    @ManyToOne(fetch = FetchType.LAZY)
+//    @JoinColumn(name = "meeting_id")
+//    private Meeting meeting;
 
     private LocalTime time;
 
     @OneToMany(mappedBy = "timeInfo", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<AdjustResult> adjustResultList = new ArrayList<>();
 
-    @Column(name = "created_by")
-    private String createdBy;
+//    @Column(name = "created_by")
+//    private String createdBy;
+//
+//    @Column(name = "modified_by")
+//    private String modifiedBy;
 
-    @Column(name = "modified_by")
-    private String modifiedBy;
+    public TimeInfo(DateInfo dateInfo, LocalTime time) {
+        this.dateInfo = dateInfo;
+        this.time = time;
+    }
 }
