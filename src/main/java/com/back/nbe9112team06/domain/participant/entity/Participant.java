@@ -20,4 +20,15 @@ public class Participant extends BaseEntity {
 
     @Column(name = "guest_password")
     private String guestPassword;
+
+    public static Participant create(String guestName, String guestPassword) {
+        Participant participant = new Participant();
+        participant.guestName = guestName;
+        participant.guestPassword = guestPassword;
+        return participant;
+    }
+
+    public void assignMeeting(Meeting meeting) {
+        this.meeting = meeting;
+    }
 }
