@@ -3,6 +3,8 @@ package com.back.nbe9112team06.domain.timeblock.service;
 import com.back.nbe9112team06.domain.meeting.entity.Meeting;
 import com.back.nbe9112team06.domain.participant.entity.Participant;
 import com.back.nbe9112team06.domain.timeblock.dto.TimeBlockRequest;
+import com.back.nbe9112team06.domain.timeblock.entity.AvailableDateTime;
+import com.back.nbe9112team06.domain.timeblock.entity.AvailableTime;
 import com.back.nbe9112team06.domain.timeblock.entity.TimeBlock;
 import com.back.nbe9112team06.domain.timeblock.repository.AvailableDateTimeRepository;
 import com.back.nbe9112team06.domain.timeblock.repository.AvailableTimeRepository;
@@ -29,18 +31,18 @@ public class TimeBlockService {
 
     @Transactional
     public void registerTimeBlock(Integer meetingId, TimeBlockRequest request) {
-        // 이 모임이 존재하는지
+        // 이 모임이 존재하는지 (Meeting 존재)
         Meeting meeting = meetingRepository.findById(meetingId)
                 .orElseThrow(() -> new RuntimeException("존재하지 않는 모임입니다."));
 
-        // 요청한 사람이 이 모임 참여자인지
+        // 요청한 사람이 이 모임 참여자인지 (Participant 인증)
         Participant participant = participantRepository.findByMeetingAndGuestNameAndGuestPassword(
                 meeting,
                 request.getGuestName(),
                 request.getGuestPassword())
         .orElseThrow(() -> new RuntimeException("인증 실패"));
 
-        // 시간표를 등록한 적이 있는지
+        // 시간표를 등록한 적이 있는지 (TimeBlock 중복)
         timeBlockRepository.findByMeetingAndParticipantName(meeting, participant)
                 .ifPresent(timeBlock -> {
                     throw new RuntimeException("이미 시간표가 등록되어있습니다");
@@ -48,9 +50,28 @@ public class TimeBlockService {
 
         // availableDateTime 테이블 검증
         validateAvailableDateTime(request.getAvailableDateTimes());
-        // 저장
+
+        //날짜별 가능한 시간 목록 묶어서 Map 반환 메서드 사용
+        Map<LocalDate, List<LocalTime>> dateTimeMap = buildDateTimeMap(request.getAvailableDateTimes());
+
+        // TimeBlock 저장
         TimeBlock timeBlock = TimeBlock.create(meeting, participant);
         timeBlockRepository.save(timeBlock);
+
+        // AvailableDateTime 및 AvailableTime저장
+        for(Map.Entry<LocalDate, List<LocalTime>> entry : dateTimeMap.entrySet()) {
+            LocalDate date = entry.getKey();
+            List<LocalTime> times = entry.getValue();
+
+            AvailableDateTime availableDateTime = AvailableDateTime.create(timeBlock, meeting, date);
+            availableDateTimeRepository.save(availableDateTime);
+
+            for(LocalTime time : times){
+                AvailableTime availableTime = AvailableTime.create(availableDateTime, timeBlock, meeting, time);
+                availableTimeRepository.save(availableTime);
+            }
+
+        }
     }
 
     // 검증 메서드
@@ -84,4 +105,23 @@ public class TimeBlockService {
 
     }
 
+    // 날짜 별로 가능한 시간 목록 묶어서 Map으로 반환
+    private Map<LocalDate, List<LocalTime>> buildDateTimeMap(List<String> availableDateTimes){
+        // 날짜별로 시간 리스트 묶어서 Map 반환
+        Map<LocalDate, List<LocalTime>> map = new HashMap<>();
+        for(String dateTimeStr : availableDateTimes){
+            LocalDateTime dateTime = LocalDateTime.parse(dateTimeStr,
+                    DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
+
+            LocalDate date = dateTime.toLocalDate();
+            LocalTime time = dateTime.toLocalTime();
+
+            // 날짜 키가 없으면 새 리스트 생성 후 시간 추가
+            if(!map.containsKey(date)){
+                map.put(date, new ArrayList<>());
+            }
+            map.get(date).add(time);
+        }
+        return map;
+    }
 }
