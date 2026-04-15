@@ -1,7 +1,9 @@
 package com.back.nbe9112team06.domain.timeblock.service;
 
 import com.back.nbe9112team06.domain.meeting.entity.Meeting;
+import com.back.nbe9112team06.domain.meeting.repository.MeetingRepository;
 import com.back.nbe9112team06.domain.participant.entity.Participant;
+import com.back.nbe9112team06.domain.participant.repository.ParticipantRepository;
 import com.back.nbe9112team06.domain.timeblock.dto.TimeBlockDeleteRequest;
 import com.back.nbe9112team06.domain.timeblock.dto.TimeBlockRequest;
 import com.back.nbe9112team06.domain.timeblock.entity.AvailableDateTime;
@@ -24,8 +26,8 @@ import java.util.*;
 @Service
 @RequiredArgsConstructor
 public class TimeBlockService {
-    //private final MeetingRepository meetingRepository;
-//    private final ParticipantRepository participantRepository;
+    private final MeetingRepository meetingRepository;
+    private final ParticipantRepository participantRepository;
     private final TimeBlockRepository timeBlockRepository;
     private final AvailableDateTimeRepository availableDateTimeRepository;
     private final AvailableTimeRepository availableTimeRepository;
@@ -44,7 +46,7 @@ public class TimeBlockService {
         .orElseThrow(() -> new RuntimeException("인증 실패"));
 
         // 시간표를 등록한 적이 있는지 (TimeBlock 중복)
-        timeBlockRepository.findByMeetingAndParticipantName(meeting, participant)
+        timeBlockRepository.findByMeetingAndParticipant(meeting, participant)
                 .ifPresent(timeBlock -> {
                     throw new RuntimeException("이미 시간표가 등록되어있습니다");
                 });
@@ -140,7 +142,7 @@ public class TimeBlockService {
                         timeBlockDeleteRequest.getGuestPassword())
                 .orElseThrow(() -> new RuntimeException("인증 실패"));
 
-        TimeBlock timeBlock = timeBlockRepository.findByMeetingAndParticipantName(meeting, participant)
+        TimeBlock timeBlock = timeBlockRepository.findByMeetingAndParticipant(meeting, participant)
                 .orElseThrow(() -> new RuntimeException("삭제할 회의가 없습니다."));
 
         timeBlockRepository.delete(timeBlock);
