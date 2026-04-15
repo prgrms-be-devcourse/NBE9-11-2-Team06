@@ -1,11 +1,8 @@
-package com.back.nbe9112team06.domain.user.entity;
+package com.back.nbe9112team06.domain.member.entity;
 
 import com.back.nbe9112team06.domain.meeting.entity.Meeting;
 import com.back.nbe9112team06.global.entity.BaseEntity;
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.OneToMany;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -15,7 +12,7 @@ import java.util.List;
 @Entity
 @Getter
 @NoArgsConstructor
-public class User extends BaseEntity {
+public class Member extends BaseEntity {
 
     @Column(nullable = false, unique = true)
     private String email;
@@ -23,15 +20,18 @@ public class User extends BaseEntity {
     @Column(name = "password_hash", nullable = false)
     private String passwordHash;
 
+    @Column(nullable = false)
     private String nickname;
 
-    private String timezone;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private TimezoneType timezone;
 
-    @OneToMany(mappedBy = "user", cascade = {CascadeType.PERSIST, CascadeType.REMOVE}
+    @OneToMany(mappedBy = "member", cascade = {CascadeType.PERSIST, CascadeType.REMOVE}
             , orphanRemoval = true)
     private List<Meeting> meetings = new ArrayList<>();
 
-    public User(String email, String passwordHash, String nickname, String timezone) {
+    public Member(String email, String passwordHash, String nickname, TimezoneType timezone) {
         this.email = email;
         this.passwordHash = passwordHash;
         this.nickname = nickname;
