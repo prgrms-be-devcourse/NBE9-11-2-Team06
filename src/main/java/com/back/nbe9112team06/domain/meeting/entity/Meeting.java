@@ -45,4 +45,25 @@ public class Meeting extends BaseEntity {
 
     @OneToMany(mappedBy = "meeting", cascade = {CascadeType.PERSIST, CascadeType.REMOVE}, orphanRemoval = true)
     private List<TimeTable> timeTables = new ArrayList<>();
+
+    public static Meeting create(String title, String category, Integer duration, Member member, String randomUrl) {
+        Meeting meeting = new Meeting();
+        meeting.title = title;
+        meeting.category = category;
+        meeting.duration = duration;
+        meeting.member = member;
+        meeting.randomUrl = randomUrl;
+        meeting.status = "OPEN";
+        return meeting;
+    }
+
+    public void addMeetingsDate(MeetingsDate meetingsDate) {
+        meetingsDates.add(meetingsDate);
+        meetingsDate.assignMeeting(this);
+    }
+
+    public void addParticipant(Participant participant) {
+        participants.add(participant);
+        participant.assignMeeting(this);
+    }
 }
