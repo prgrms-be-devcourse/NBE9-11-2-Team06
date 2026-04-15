@@ -4,3 +4,14 @@ spring:
     username: sa
     password:
     driver-class-name: org.h2.Driver
+
+springdoc:
+  api-docs:
+    enabled: true
+  default-produces-media-type: application/json; charset=UTF-8
+
+logging:
+  level:
+    org.hibernate.orm.jdbc.bind: TRACE
+    org.hibernate.orm.jdbc.extract: TRACE
+    org.springframework.transaction.interceptor: TRACE
