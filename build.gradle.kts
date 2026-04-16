@@ -35,7 +35,6 @@ dependencies {
     testCompileOnly("org.projectlombok:lombok")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
     testAnnotationProcessor("org.projectlombok:lombok")
-    testImplementation("com.navercorp.fixturemonkey:fixture-monkey-starter:0.6.8")
 }
 
 tasks.withType<Test> {
