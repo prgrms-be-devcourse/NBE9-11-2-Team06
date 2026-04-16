@@ -32,11 +32,6 @@ public class TimeInfo extends BaseEntity {
     @OneToMany(mappedBy = "timeInfo", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<AdjustResult> adjustResultList = new ArrayList<>();
 
-//    @Column(name = "created_by")
-//    private String createdBy;
-//
-//    @Column(name = "modified_by")
-//    private String modifiedBy;
 
     public TimeInfo(DateInfo dateInfo, LocalTime time) {
         this.dateInfo = dateInfo;
