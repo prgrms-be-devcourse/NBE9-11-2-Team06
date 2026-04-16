@@ -27,11 +27,6 @@ public class DateInfo extends BaseEntity {
     @OneToMany(mappedBy = "dateInfo", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<TimeInfo> timeInfos = new ArrayList<>();
 
-//    @Column(name = "created_by")
-//    private String createdBy;
-//
-//    @Column(name = "modified_by")
-//    private String modifiedBy;
 
     public DateInfo(TimeTable timeTable, LocalDate date) {
         this.timeTable = timeTable;
