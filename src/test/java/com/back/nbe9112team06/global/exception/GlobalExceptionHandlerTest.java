@@ -78,7 +78,7 @@ class GlobalExceptionHandlerTest {
     }
 
     @Test
-    @DisplayName("내내부 오류 시 민감 정보가 detail 에 노출되지 않는다")
+    @DisplayName("내부 오류 시 민감 정보가 detail 에 노출되지 않는다")
     void unexpectedException_doesNotExposeSensitiveInfo() throws Exception {
         mockMvc.perform(get("/test/unexpected"))
                 .andExpect(status().isInternalServerError())

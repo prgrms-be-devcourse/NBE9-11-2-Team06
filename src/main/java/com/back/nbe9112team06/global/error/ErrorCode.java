@@ -59,6 +59,14 @@ public enum ErrorCode {
             "https://api.example.com/errors/validation/failed"
     ),
 
+    // ==================== MEMBER/회원 관리 ====================
+    DUPLICATE_EMAIL(
+            HttpStatus.CONFLICT,
+            "MEMBER-001",
+            "이미 등록된 이메일입니다.",
+            "https://api.example.com/errors/member/duplicate-email"
+    ),
+
     // ==================== 추가 예외 코드 (테스트용) ====================
     TYPE_MISMATCH(
             HttpStatus.BAD_REQUEST,
