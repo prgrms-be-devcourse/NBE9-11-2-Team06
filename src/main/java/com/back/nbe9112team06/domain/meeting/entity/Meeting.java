@@ -1,9 +1,9 @@
 package com.back.nbe9112team06.domain.meeting.entity;
 
+import com.back.nbe9112team06.domain.member.entity.Member;
 import com.back.nbe9112team06.domain.participant.entity.Participant;
 import com.back.nbe9112team06.domain.timeblock.entity.TimeBlock;
 import com.back.nbe9112team06.domain.timetable.entity.TimeTable;
-import com.back.nbe9112team06.domain.user.entity.User;
 import com.back.nbe9112team06.global.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -31,8 +31,8 @@ public class Meeting extends BaseEntity {
     private Integer duration;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
-    private User user;
+    @JoinColumn(name = "member_id")
+    private Member member;
 
     @OneToMany(mappedBy = "meeting", cascade = {CascadeType.PERSIST, CascadeType.REMOVE}, orphanRemoval = true)
     private List<Participant> participants = new ArrayList<>();

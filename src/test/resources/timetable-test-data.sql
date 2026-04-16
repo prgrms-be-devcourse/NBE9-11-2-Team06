@@ -1,14 +1,14 @@
 -- =========================
--- 0️⃣ USERS (필수)
+-- 0️⃣ MEMBERS (필수)
 -- =========================
-INSERT INTO users (id, email, password_hash, created_at, modified_at)
+INSERT INTO members (id, email, password_hash, created_at, modified_at)
 VALUES 
 (1, 'user1@test.com', 'pass', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
 
 -- =========================
 -- 1️⃣ MEETING
 -- =========================
-INSERT INTO meeting (id, title, status, category, duration, local_time, random_url, user_id, created_at, modified_at)
+INSERT INTO meeting (id, title, status, category, duration, local_time, random_url, member_id, created_at, modified_at)
 VALUES 
 (1, '회의1', 'OPEN', 'GENERAL', 60, 'ASIA/SEOUL', 'url1', 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
 (2, '회의2', 'OPEN', 'GENERAL', 60, 'ASIA/SEOUL', 'url2', 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
