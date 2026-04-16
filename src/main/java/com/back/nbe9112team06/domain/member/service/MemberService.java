@@ -6,6 +6,8 @@ import com.back.nbe9112team06.domain.member.dto.request.CheckEmailRequest;
 import com.back.nbe9112team06.domain.member.dto.response.AvailabilityResponse;
 import com.back.nbe9112team06.domain.member.entity.Member;
 import com.back.nbe9112team06.domain.member.repository.MemberRepository;
+import com.back.nbe9112team06.global.error.ErrorCode;
+import com.back.nbe9112team06.global.exception.BusinessException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -20,13 +22,10 @@ public class MemberService {
     @Transactional
     public SignupResponse signup(SignupRequest request){
 
-//        if (memberRepository.existsByEmail(request.email())) {
-//            throw new ConflictException("This email " + request.email() + " is already existed!");
-//        }
-//
-//        if (memberRepository.existsByNickname(request.nickname())) {
-//            throw new ConflictException("This nickname " + request.nickname() + " is already existed!");
-//        }
+        if (memberRepository.existsByEmail(request.email())) {
+            throw new BusinessException(ErrorCode.DUPLICATE_EMAIL);
+        }
+
 
         // 비밀번호 암호화
         String hashedPassword = passwordEncoder.encode(request.password());
