@@ -1,9 +1,9 @@
 package com.back.nbe9112team06.domain.meeting.entity;
 
+import com.back.nbe9112team06.domain.member.entity.Member;
 import com.back.nbe9112team06.domain.participant.entity.Participant;
 import com.back.nbe9112team06.domain.timeblock.entity.TimeBlock;
 import com.back.nbe9112team06.domain.timetable.entity.TimeTable;
-import com.back.nbe9112team06.domain.member.entity.Member;
 import com.back.nbe9112team06.global.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.Getter;
