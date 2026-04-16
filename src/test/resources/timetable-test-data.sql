@@ -1,9 +1,9 @@
 -- =========================
--- 0️⃣ MEMBERS (필수)
+-- 0️⃣ MEMBER (필수)
 -- =========================
-INSERT INTO members (id, email, password_hash, created_at, modified_at)
+INSERT INTO member (id, email, password_hash, nickname, timezone, created_at, modified_at)
 VALUES 
-(1, 'user1@test.com', 'pass', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+(1, 'user1@test.com', 'pass', 'user1', 'ASIA_SEOUL', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
 
 -- =========================
 -- 1️⃣ MEETING
