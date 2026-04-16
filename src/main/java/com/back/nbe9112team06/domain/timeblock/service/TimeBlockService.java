@@ -12,6 +12,8 @@ import com.back.nbe9112team06.domain.timeblock.entity.TimeBlock;
 import com.back.nbe9112team06.domain.timeblock.repository.AvailableDateTimeRepository;
 import com.back.nbe9112team06.domain.timeblock.repository.AvailableTimeRepository;
 import com.back.nbe9112team06.domain.timeblock.repository.TimeBlockRepository;
+import com.back.nbe9112team06.global.error.ErrorCode;
+import com.back.nbe9112team06.global.exception.BusinessException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -36,19 +38,19 @@ public class TimeBlockService {
     public void registerTimeBlock(Integer meetingId, TimeBlockRequest request) {
         // 이 모임이 존재하는지 (Meeting 존재)
         Meeting meeting = meetingRepository.findById(meetingId)
-                .orElseThrow(() -> new RuntimeException("존재하지 않는 모임입니다."));
+                .orElseThrow(() -> new BusinessException(ErrorCode.NOT_FOUND, "존재하지 않는 모임입니다."));
 
         // 요청한 사람이 이 모임 참여자인지 (Participant 인증)
         Participant participant = participantRepository.findByMeetingAndGuestNameAndGuestPassword(
                 meeting,
                 request.getGuestName(),
                 request.getGuestPassword())
-        .orElseThrow(() -> new RuntimeException("인증 실패"));
+        .orElseThrow(() -> new BusinessException(ErrorCode.ACCESS_DENIED, "이 모임 참여자가 아닙니다."));
 
         // 시간표를 등록한 적이 있는지 (TimeBlock 중복)
         timeBlockRepository.findByMeetingAndParticipant(meeting, participant)
                 .ifPresent(timeBlock -> {
-                    throw new RuntimeException("이미 시간표가 등록되어있습니다");
+                    throw new BusinessException(ErrorCode.DUPLICATE_RESOURCE, "시간표가 이미 등록되었습니다.");
                 });
 
         // availableDateTime 테이블 검증
@@ -82,7 +84,7 @@ public class TimeBlockService {
         // 중복 검증
         Set<String> set = new HashSet<>(availableDateTimes);
         if(set.size() != availableDateTimes.size()){
-            throw new RuntimeException("시간이 중복됩니다.");
+            throw new BusinessException(ErrorCode.INVALID_REQUEST_PARAMETER, "시간 선택이 중복되었습니다.");
         }
 
         // 날짜 형식 검증
@@ -92,17 +94,17 @@ public class TimeBlockService {
                 dateTime = LocalDateTime.parse(dateTimeStr, // 문자열을 LocalDateTime 객체로 변환
                         DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
             }catch (DateTimeParseException e) {
-                throw new RuntimeException("잘못된 날짜/시간 형식입니다.");
+                throw new BusinessException(ErrorCode.INVALID_REQUEST_PARAMETER, "올바른 날짜 형식이 아닙니다.");
             }
 
             // 과거 날짜 검증
             if(dateTime.isBefore(LocalDateTime.now())){
-                throw new RuntimeException("현재 날짜보다 과거입니다.");
+                throw new BusinessException(ErrorCode.INVALID_REQUEST_PARAMETER, "현재 날짜보다 과거 날짜는 선택할 수 없습니다.");
             }
 
             // 30분 단위 검증
             if(dateTime.getMinute()%30 != 0) {
-                throw new RuntimeException("30분 단위가 아닙니다.");
+                throw new BusinessException(ErrorCode.INVALID_REQUEST_PARAMETER, "30분 단위 시간이 아닙니다.");
             }
         }
 
@@ -133,17 +135,18 @@ public class TimeBlockService {
     public void deleteTImeBlock(Integer meetingId, TimeBlockDeleteRequest timeBlockDeleteRequest){
         //  Meeting 존재 여부 확인
         Meeting meeting = meetingRepository.findById(meetingId)
-                .orElseThrow(() -> new RuntimeException("회의가 존재하지 않습니다."));
+                .orElseThrow(() -> new BusinessException(ErrorCode.NOT_FOUND, "존재하지 않는 모임입니다."));
 
         // 요청한 사람이 이 모임 참여자인지 (Participant 인증)
         Participant participant = participantRepository.findByMeetingAndGuestNameAndGuestPassword(
                         meeting,
                         timeBlockDeleteRequest.getGuestName(),
                         timeBlockDeleteRequest.getGuestPassword())
-                .orElseThrow(() -> new RuntimeException("인증 실패"));
+                .orElseThrow(() -> new BusinessException(ErrorCode.ACCESS_DENIED, "이 모임 참여자가 아닙니다."));
 
+        // 삭제할 TimeBlock가 없음
         TimeBlock timeBlock = timeBlockRepository.findByMeetingAndParticipant(meeting, participant)
-                .orElseThrow(() -> new RuntimeException("삭제할 회의가 없습니다."));
+                .orElseThrow(() -> new BusinessException(ErrorCode.NOT_FOUND, "삭제할 시간이 없습니다."));
 
         timeBlockRepository.delete(timeBlock);
     }
