@@ -1,0 +1,32 @@
+package com.back.nbe9112team06.domain.timeblock.entity;
+
+import com.back.nbe9112team06.domain.meeting.entity.Meeting;
+import com.back.nbe9112team06.global.entity.BaseEntity;
+import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+
+import java.util.ArrayList;
+import java.util.List;
+
+@Entity
+@Getter
+@NoArgsConstructor
+public class TimeBlock extends BaseEntity {
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "meeting_id")
+    private Meeting meeting;
+
+    @Column(name = "participant_name")
+    private String participantName;
+
+    @OneToMany(mappedBy = "timeBlock", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<AvailableDateTime> availableDateTimes = new ArrayList<>();
+
+    @Column(name = "created_by")
+    private String createdBy;
+
+    @Column(name = "modified_by")
+    private String modifiedBy;
+}
