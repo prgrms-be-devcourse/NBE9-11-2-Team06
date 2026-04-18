@@ -1,6 +1,7 @@
 package com.back.nbe9112team06.standard.ut;
 
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 
@@ -40,8 +41,10 @@ public final class Ut {
                     .build()
                     .parseSignedClaims(token)   // 서명 검증 + 만료 자동 검증
                     .getPayload();
+        }  catch (ExpiredJwtException e) {
+            throw e;
         } catch (Exception e) {
-            return null;    // 서명 불일치, 만료, 형식 오류 모두 null
+            return null;
         }
     }
 
