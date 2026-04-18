@@ -50,6 +50,12 @@ public enum ErrorCode {
             "토큰이 만료되었습니다.",
             "https://api.example.com/errors/auth/token-expired"
     ),
+    INVALID_LOGIN_CREDENTIALS(
+            HttpStatus.UNAUTHORIZED,
+            "AUTH-003",
+            "이메일 또는 비밀번호가 올바르지 않습니다.",
+            "https://api.example.com/errors/auth/invalid-credentials"
+    ),
 
     // ==================== VALIDATION ====================
     VALIDATION_FAILED(
@@ -66,6 +72,7 @@ public enum ErrorCode {
             "이미 등록된 이메일입니다.",
             "https://api.example.com/errors/member/duplicate-email"
     ),
+
 
     // ==================== 추가 예외 코드 (테스트용) ====================
     TYPE_MISMATCH(

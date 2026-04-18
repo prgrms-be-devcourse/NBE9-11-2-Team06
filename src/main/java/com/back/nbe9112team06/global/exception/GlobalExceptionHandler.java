@@ -204,7 +204,7 @@ public class GlobalExceptionHandler {
         log.error("[INTERNAL_ERROR] unexpected exception, path={}",
                 request.getRequestURI(), ex);
 
-        // 🛡️ 사용자에게는 일반화된 메시지, 로그에만 상세 스택트레이스
+        // 사용자에게는 일반화된 메시지, 로그에만 상세 스택트레이스
         ProblemDetail pd = ErrorCode.INTERNAL_SERVER_ERROR.toProblemDetail(
                 "서버 내부 오류가 발생했습니다. 관리자에게 문의하세요.",
                 request.getRequestURI()
