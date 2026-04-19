@@ -113,7 +113,6 @@ public enum ErrorCode {
     private final String code;      // 기계 식별용: "AUTH-001"
     private final String message;   // 기본 detail 메시지
 
-    // typeUri는 code 기반으로 자동 생성 — 하드코딩 제거
     private String buildTypeUri() {
         // "AUTH-001" → "auth/001"
         String[] parts = code.toLowerCase().split("-");

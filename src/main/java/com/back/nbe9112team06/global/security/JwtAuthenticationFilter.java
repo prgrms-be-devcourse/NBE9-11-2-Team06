@@ -1,7 +1,6 @@
 package com.back.nbe9112team06.global.security;
 
 import com.back.nbe9112team06.global.error.ErrorCode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
@@ -17,6 +16,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
+import tools.jackson.databind.json.JsonMapper;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -27,7 +27,7 @@ import java.util.List;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtTokenProvider jwtTokenProvider;
-    private final ObjectMapper objectMapper;
+    private final JsonMapper jsonMapper;
 
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
@@ -90,6 +90,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         response.setContentType(MediaType.APPLICATION_PROBLEM_JSON_VALUE);
         response.setStatus(errorCode.getStatus().value());
         response.setCharacterEncoding("UTF-8");
-        response.getWriter().write(objectMapper.writeValueAsString(pd));
+        response.getWriter().write(jsonMapper.writeValueAsString(pd));
     }
 }

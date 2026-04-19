@@ -1,7 +1,6 @@
 package com.back.nbe9112team06.global.security;
 
 import com.back.nbe9112team06.global.error.ErrorCode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +19,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.security.web.header.writers.frameoptions.XFrameOptionsHeaderWriter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import tools.jackson.databind.json.JsonMapper;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -31,7 +31,7 @@ import java.util.List;
 public class SecurityConfig {
 
     private final JwtTokenProvider jwtTokenProvider;
-    private final ObjectMapper objectMapper; // ProblemDetails 직렬화용
+    private final JsonMapper jsonMapper;
 
     @Bean
     public AuthenticationEntryPoint authenticationEntryPoint() {
@@ -72,7 +72,7 @@ public class SecurityConfig {
                         new XFrameOptionsHeaderWriter(
                                 XFrameOptionsHeaderWriter.XFrameOptionsMode.SAMEORIGIN)))
                 .addFilterBefore( // 컨테이너나 빈 등록X new로 직접 생성하여 중복 X
-                        new JwtAuthenticationFilter(jwtTokenProvider, objectMapper),
+                        new JwtAuthenticationFilter(jwtTokenProvider, jsonMapper),
                         UsernamePasswordAuthenticationFilter.class)
                 .exceptionHandling(ex -> ex
                         .authenticationEntryPoint(authenticationEntryPoint())
@@ -96,7 +96,7 @@ public class SecurityConfig {
         response.setContentType(MediaType.APPLICATION_PROBLEM_JSON_VALUE);
         response.setStatus(errorCode.getStatus().value());
         response.setCharacterEncoding("UTF-8");
-        response.getWriter().write(objectMapper.writeValueAsString(pd));
+        response.getWriter().write(jsonMapper.writeValueAsString(pd));
     }
 
     @Bean
