@@ -14,3 +14,4 @@ public interface ParticipantRepository extends JpaRepository<Participant, Intege
             String guestPassword
     );
 }
+
