@@ -29,6 +29,12 @@ public class TimeBlock extends BaseEntity {
     @Column(name = "created_by")
     private String createdBy;
 
-    @Column(name = "modified_by")
-    private String modifiedBy;
+    public static TimeBlock create(Meeting meeting, Participant participant) {
+        TimeBlock timeBlock = new TimeBlock();
+        timeBlock.meeting = meeting;
+        timeBlock.participant = participant;
+        timeBlock.createdBy = participant.getGuestName();
+        return timeBlock;
+    }
+
 }
