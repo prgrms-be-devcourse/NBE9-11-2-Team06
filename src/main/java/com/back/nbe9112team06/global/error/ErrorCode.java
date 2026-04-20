@@ -107,7 +107,24 @@ public enum ErrorCode {
             HttpStatus.CONFLICT,
             "MEMBER-002",
             "이미 등록된 이메일입니다."
-    );
+    ),
+
+    // ==================== 모임 (MEETING) ====================
+    MEETING_NOT_FOUND(
+            HttpStatus.NOT_FOUND,
+            "MEETING-001",
+            "존재하지 않는 모임입니다."
+    ),
+
+    // ==================== 타임블럭 (TIMEBLOCK) ====================
+    TIMEBLOCK_NOT_FOUND(
+            HttpStatus.NOT_FOUND,
+            "TIMEBLOCK-001",
+            "존재하지 않는 타임블럭입니다."
+    )
+    ;
+
+
 
     private final HttpStatus status;
     private final String code;      // 기계 식별용: "AUTH-001"
