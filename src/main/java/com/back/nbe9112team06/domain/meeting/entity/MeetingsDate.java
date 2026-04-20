@@ -23,4 +23,16 @@ public class MeetingsDate extends BaseEntity {
 
     @Column(name = "modified_by")
     private String modifiedBy;
+
+    public static MeetingsDate create(LocalDate date, String createdBy) {
+        MeetingsDate meetingsDate = new MeetingsDate();
+        meetingsDate.date = date;
+        meetingsDate.createdBy = createdBy;
+        meetingsDate.modifiedBy = createdBy;
+        return meetingsDate;
+    }
+
+    public void assignMeeting(Meeting meeting) {
+        this.meeting = meeting;
+    }
 }
