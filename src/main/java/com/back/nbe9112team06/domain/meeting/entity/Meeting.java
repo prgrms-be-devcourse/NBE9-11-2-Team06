@@ -25,7 +25,8 @@ public class Meeting extends BaseEntity {
     @Column(name = "local_time")
     private String localTime;
 
-    private String status;
+    @Enumerated(EnumType.STRING)
+    private MeetingStatus status;
 
     @Column(name = "random_url")
     private String randomUrl;
@@ -47,4 +48,20 @@ public class Meeting extends BaseEntity {
 
     @OneToMany(mappedBy = "meeting", cascade = {CascadeType.PERSIST, CascadeType.REMOVE}, orphanRemoval = true)
     private List<TimeTable> timeTables = new ArrayList<>();
+
+    public void confirm(LocalDate date, LocalTime time){
+        this.confirmedDate = date;
+        this.confirmedTime = time;
+        this.status = MeetingStatus.CONFIRMED;
+    }
+
+    public void cancelConfirm(){
+        this.confirmedDate = null;
+        this.confirmedTime = null;
+        this.status = MeetingStatus.PENDING;
+    }
+
+    public boolean isHost(Integer memberId){
+        return this.member != null && this.member.getId().equals(memberId);
+    }
 }

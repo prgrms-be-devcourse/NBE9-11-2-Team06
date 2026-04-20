@@ -51,6 +51,32 @@ public enum ErrorCode {
             "https://api.example.com/errors/auth/token-expired"
     ),
 
+    // ==================== 모임 ====================
+    MEETING_NOT_FOUND(
+            HttpStatus.NOT_FOUND,
+            "MEETING-001",
+            "존재하지 않는 모임입니다.",
+            "https://api.example.com/errors/meeting/not-found"
+    ),
+    NOT_MEETING_HOST(
+            HttpStatus.FORBIDDEN,
+            "MEETING-002",
+            "모임장만 일정을 확정할 수 있습니다.",
+            "https://api.example.com/errors/meeting/not-host"
+    ),
+    ALREADY_CONFIRMED(
+            HttpStatus.CONFLICT,
+            "MEETING-003",
+            "이미 확정된 모임입니다.",
+            "https://api.example.com/errors/meeting/already-confirmed"
+    ),
+    NOT_CONFIRMED(
+            HttpStatus.BAD_REQUEST,
+            "MEETING-004",
+            "확정되지 않은 모임입니다.",
+            "https://api.example.com/errors/meeting/not-confirmed"
+    ),
+
     // ==================== VALIDATION ====================
     VALIDATION_FAILED(
             HttpStatus.BAD_REQUEST,

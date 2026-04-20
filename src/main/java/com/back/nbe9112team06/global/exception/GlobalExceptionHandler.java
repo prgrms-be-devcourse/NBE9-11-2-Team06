@@ -7,6 +7,7 @@ import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.ProblemDetail;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
@@ -217,5 +218,13 @@ public class GlobalExceptionHandler {
         }
 
         return pd;
+    }
+
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ProblemDetail handleHttpMessageNotReadable(HttpMessageNotReadableException e, HttpServletRequest request) {
+        return ErrorCode.INVALID_REQUEST_PARAMETER.toProblemDetail(
+                "요청 본문을 읽을 수 없습니다. 날짜/시간 형식을 확인해주세요.",
+                request.getRequestURI()
+        );
     }
 }
