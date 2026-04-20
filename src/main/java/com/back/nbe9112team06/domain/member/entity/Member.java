@@ -37,4 +37,12 @@ public class Member extends BaseEntity {
         this.nickname = nickname;
         this.timezone = timezone;
     }
+    public Member(int id, String nickname) {
+        this.setId(id);
+        this.nickname = nickname;
+    }
+
+    public String getName() {
+        return nickname;
+    }
 }

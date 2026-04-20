@@ -21,7 +21,7 @@ public class TestController {
     @GetMapping("/business")
     public void business() {
         // ✅ USER_NOT_FOUND → NOT_FOUND 사용
-        throw new BusinessException(ErrorCode.NOT_FOUND, "회원을 찾을 수 없습니다.");
+        throw new BusinessException(ErrorCode.NOT_FOUND);
     }
 
     @GetMapping("/unexpected")
