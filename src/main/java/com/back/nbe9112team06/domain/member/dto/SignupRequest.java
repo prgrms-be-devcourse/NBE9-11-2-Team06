@@ -23,7 +23,7 @@ public record SignupRequest(
         @Schema(description = "닉네임", example = "gildong")
         @NotBlank(message = "닉네임은 필수입니다")
         @Size(min = 2, max = 20)
-                String nickname,
+        String nickname,
 
         @Schema(
                 description = "시간대",

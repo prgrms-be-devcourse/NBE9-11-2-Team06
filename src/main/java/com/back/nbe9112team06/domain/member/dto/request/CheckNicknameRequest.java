@@ -1,8 +1,0 @@
-package com.back.nbe9112team06.domain.member.dto.request;
-
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
-
-public record CheckNicknameRequest(
-        @NotBlank @Size(min = 2, max = 20) String nickname
-) {}
