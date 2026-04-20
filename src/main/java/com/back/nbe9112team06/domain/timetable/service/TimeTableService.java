@@ -2,6 +2,7 @@ package com.back.nbe9112team06.domain.timetable.service;
 
 import com.back.nbe9112team06.domain.adjustresult.entity.AdjustResult;
 import com.back.nbe9112team06.domain.meeting.entity.Meeting;
+import com.back.nbe9112team06.domain.meeting.repository.MeetingRepository;
 import com.back.nbe9112team06.domain.timeblock.entity.AvailableDateTime;
 import com.back.nbe9112team06.domain.timeblock.entity.AvailableTime;
 import com.back.nbe9112team06.domain.timeblock.entity.TimeBlock;
@@ -13,6 +14,8 @@ import com.back.nbe9112team06.domain.timetable.entity.DateInfo;
 import com.back.nbe9112team06.domain.timetable.entity.TimeInfo;
 import com.back.nbe9112team06.domain.timetable.entity.TimeTable;
 import com.back.nbe9112team06.domain.timetable.repository.TimeTableRepository;
+import com.back.nbe9112team06.global.error.ErrorCode;
+import com.back.nbe9112team06.global.exception.BusinessException;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
@@ -35,6 +38,7 @@ public class TimeTableService {
 
     private final TimeTableRepository timeTableRepository;
     private final TimeBlockRepository timeBlockRepository;
+    private final MeetingRepository meetingRepository;
 
     @PersistenceContext
     private EntityManager em;
@@ -43,6 +47,8 @@ public class TimeTableService {
     @Transactional
     public void aggregate(Integer meetingId) {
 
+        Meeting meeting = meetingRepository.findById(meetingId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.MEETING_NOT_FOUND));
 
         //기존 타임테이블 제거 후 생성, orphanRemoval
         deleteAllByMeetingId(meetingId);
@@ -73,7 +79,7 @@ public class TimeTableService {
         }
 
         //Meeting meeting = meetingRepository.findById(meetingId);
-        Meeting meeting = em.getReference(Meeting.class, meetingId);
+        //Meeting meeting = em.getReference(Meeting.class, meetingId);
         TimeTable timeTable = new TimeTable(meeting, new ArrayList<>());
 
         //key: 날짜   value: 시간당 이름 Map
@@ -115,6 +121,7 @@ public class TimeTableService {
 
     // meetingId로 TimeTable 검색
     public List<TimeTable> findByMeetingId(Integer meetingId) {
+
         return timeTableRepository.findByMeeting_Id(meetingId);
     }
 
@@ -127,7 +134,14 @@ public class TimeTableService {
 
     // 타임블록 DB 에서 데이터 꺼내기
     public List<TimeBlock> findWithAll(Integer meetingId) {
-        return timeBlockRepository.findWithAll(meetingId);
+        List<TimeBlock> timeBlocks = timeBlockRepository.findWithAll(meetingId);
+
+        if (timeBlocks.isEmpty()) {
+            throw new BusinessException(ErrorCode.NOT_FOUND);
+        }
+
+        return timeBlocks;
+
     }
 
     // 미팅 ID로 TimeTable 반환

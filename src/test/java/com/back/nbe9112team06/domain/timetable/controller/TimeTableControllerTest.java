@@ -2,13 +2,14 @@ package com.back.nbe9112team06.domain.timetable.controller;
 
 import com.back.nbe9112team06.domain.timetable.dto.TimeTableResponse;
 import com.back.nbe9112team06.domain.timetable.service.TimeTableService;
+import com.back.nbe9112team06.global.exception.BusinessException;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.transaction.annotation.Transactional;
-
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
@@ -95,5 +96,21 @@ class TimeTableControllerTest {
                 .containsExactlyInAnyOrder("A", "B");
     }
 
+    @Test
+    void 존재하지않는_모임_aggregate_시_예외발생() {
 
+        assertThatThrownBy(() -> timeTableService.aggregate(999))
+                .isInstanceOf(BusinessException.class)
+                .hasMessageContaining("존재하지 않는 모임입니다"); // 메시지 맞게 조정
+    }
+
+    @Test
+    void 타임블럭없으면_aggregate_시_예외발생() {
+
+        // 타임블럭 없는 meetingId
+        Integer meetingId = 4;
+
+        assertThatThrownBy(() -> timeTableService.aggregate(meetingId))
+                .isInstanceOf(BusinessException.class);
+    }
 }
