@@ -3,7 +3,7 @@ package com.back.nbe9112team06.domain.participant.controller;
 import com.back.nbe9112team06.domain.participant.dto.request.ParticipantJoinRequest;
 import com.back.nbe9112team06.domain.participant.dto.response.ParticipantJoinResponse;
 import com.back.nbe9112team06.domain.participant.service.ParticipantService;
-import com.back.nbe9112team06.global.dto.ApiResponse;
+import com.back.nbe9112team06.global.response.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -33,7 +33,6 @@ public class ParticipantController {
             @RequestBody @Valid ParticipantJoinRequest request
     ) {
         ParticipantJoinResponse response = participantService.joinMeeting(randomUrl, request);
-        return ApiResponse.success(HttpStatus.CREATED.value(), "모임방 참가 성공", response);
+        return new ApiResponse<>("201-1", "모임방 참가 성공", response);
     }
 }
-

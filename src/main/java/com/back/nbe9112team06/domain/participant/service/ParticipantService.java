@@ -6,11 +6,11 @@ import com.back.nbe9112team06.domain.participant.dto.request.ParticipantJoinRequ
 import com.back.nbe9112team06.domain.participant.dto.response.ParticipantJoinResponse;
 import com.back.nbe9112team06.domain.participant.entity.Participant;
 import com.back.nbe9112team06.domain.participant.repository.ParticipantRepository;
+import com.back.nbe9112team06.global.error.ErrorCode;
+import com.back.nbe9112team06.global.exception.BusinessException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.server.ResponseStatusException;
 
 @Service
 @RequiredArgsConstructor
@@ -22,7 +22,7 @@ public class ParticipantService {
     @Transactional
     public ParticipantJoinResponse joinMeeting(String randomUrl, ParticipantJoinRequest request) {
         Meeting meeting = meetingRepository.findByRandomUrl(randomUrl)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "해당 모임방을 찾을 수 없습니다."));
+                .orElseThrow(() -> new BusinessException(ErrorCode.NOT_FOUND));
 
         Participant participant = Participant.create(request.guestName(), request.guestPassword());
         meeting.addParticipant(participant);
@@ -31,4 +31,3 @@ public class ParticipantService {
         return new ParticipantJoinResponse(saved.getId(), saved.getGuestName());
     }
 }
-
