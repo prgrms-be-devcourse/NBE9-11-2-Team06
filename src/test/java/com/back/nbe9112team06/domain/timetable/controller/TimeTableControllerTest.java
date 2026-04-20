@@ -20,12 +20,14 @@ class TimeTableControllerTest {
     @Autowired
     TimeTableService timeTableService;
 
+
     @Test
     void aggregate_1번방_정확한_결과_검증() {
 
         // when
         timeTableService.aggregate(1);
         TimeTableResponse result = timeTableService.getTimeTable(1);
+
 
         // then
         assertThat(result.availableDateTimes()).hasSize(1);
@@ -52,6 +54,7 @@ class TimeTableControllerTest {
         assertThat(times.get(2).time()).isEqualTo("11:00:00");
         assertThat(times.get(2).participants())
                 .containsExactly("민수");
+
     }
 
     @Test
