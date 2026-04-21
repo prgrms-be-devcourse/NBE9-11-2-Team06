@@ -36,9 +36,6 @@ public class MeetingService {
     // ── 모임 생성 ──────────────────────────────
     @Transactional
     public MeetingCreateResponse createMeeting(Integer memberId, MeetingCreateRequest request) {
-        if (request.startDate().isAfter(request.endDate())) {
-            throw new BusinessException(ErrorCode.VALIDATION_FAILED);
-        }
 
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.MEMBER_NOT_FOUND));
@@ -52,11 +49,9 @@ public class MeetingService {
                 randomUrl
         );
 
-        LocalDate cursor = request.startDate();
-        while (!cursor.isAfter(request.endDate())) {
-            MeetingsDate meetingsDate = MeetingsDate.create(cursor, member.getEmail());
+        for (LocalDate date : request.dates()) {
+            MeetingsDate meetingsDate = MeetingsDate.create(date, member.getEmail());
             meeting.addMeetingsDate(meetingsDate);
-            cursor = cursor.plusDays(1);
         }
 
         Meeting saved = meetingRepository.save(meeting);
@@ -68,15 +63,10 @@ public class MeetingService {
         Meeting meeting = meetingRepository.findByRandomUrl(randomUrl)
                 .orElseThrow(() -> new BusinessException(ErrorCode.NOT_FOUND));
 
-        LocalDate startDate = meeting.getMeetingsDates().stream()
+        List<LocalDate> dates = meeting.getMeetingsDates().stream()
                 .map(MeetingsDate::getDate)
-                .min(Comparator.naturalOrder())
-                .orElse(null);
-
-        LocalDate endDate = meeting.getMeetingsDates().stream()
-                .map(MeetingsDate::getDate)
-                .max(Comparator.naturalOrder())
-                .orElse(null);
+                .sorted()
+                .toList();
 
         return new MeetingEntryResponse(
                 meeting.getId(),
@@ -85,8 +75,7 @@ public class MeetingService {
                 meeting.getDuration(),
                 meeting.getStatus(),
                 meeting.getRandomUrl(),
-                startDate,
-                endDate,
+                dates,
                 meeting.getCreatedAt()
         );
     }
@@ -161,14 +150,10 @@ public class MeetingService {
         return meetingRepository.findByMember_IdOrderByCreatedAtDesc(memberId)
                 .stream()
                 .map(meeting -> {
-                    LocalDate startDate = meeting.getMeetingsDates().stream()
+                    List<LocalDate> dates = meeting.getMeetingsDates().stream()
                             .map(MeetingsDate::getDate)
-                            .min(Comparator.naturalOrder())
-                            .orElse(null);
-                    LocalDate endDate = meeting.getMeetingsDates().stream()
-                            .map(MeetingsDate::getDate)
-                            .max(Comparator.naturalOrder())
-                            .orElse(null);
+                            .sorted()
+                            .toList();
                     return new MeetingEntryResponse(
                             meeting.getId(),
                             meeting.getTitle(),
@@ -176,8 +161,7 @@ public class MeetingService {
                             meeting.getDuration(),
                             meeting.getStatus(),
                             meeting.getRandomUrl(),
-                            startDate,
-                            endDate,
+                            dates,
                             meeting.getCreatedAt()
                     );
                 })

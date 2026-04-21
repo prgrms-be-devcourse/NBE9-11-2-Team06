@@ -4,6 +4,7 @@ import com.back.nbe9112team06.domain.meeting.entity.MeetingStatus;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 public record MeetingEntryResponse(
         Integer meetingId,
@@ -12,8 +13,7 @@ public record MeetingEntryResponse(
         Integer duration,
         MeetingStatus status,
         String roomUrl,
-        LocalDate startDate,
-        LocalDate endDate,
+        List<LocalDate> dates,
         LocalDateTime createdAt
 ) {
 }
