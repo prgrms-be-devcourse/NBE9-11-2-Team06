@@ -20,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.security.SecureRandom;
 import java.time.LocalDate;
 import java.util.Comparator;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -85,8 +86,22 @@ public class MeetingService {
                 meeting.getStatus(),
                 meeting.getRandomUrl(),
                 startDate,
-                endDate
+                endDate,
+                meeting.getCreatedAt()
         );
+    }
+
+    // ── 모임 삭제 ──────────────────────────────
+    @Transactional
+    public void deleteMeeting(Integer meetingId, Integer memberId) {
+        Meeting meeting = meetingRepository.findById(meetingId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.MEETING_NOT_FOUND));
+
+        if (!meeting.isHost(memberId)) {
+            throw new BusinessException(ErrorCode.NOT_MEETING_HOST);
+        }
+
+        meetingRepository.delete(meeting);
     }
 
     // ── 일정 확정 ──────────────────────────────
@@ -138,6 +153,35 @@ public class MeetingService {
                 meeting.getStatus(),
                 meeting.getTitle()
         );
+    }
+
+    // ── 목록 조회 ──────────────────────────────
+    @Transactional(readOnly = true)
+    public List<MeetingEntryResponse> getMyMeetings(Integer memberId) {
+        return meetingRepository.findByMember_IdOrderByCreatedAtDesc(memberId)
+                .stream()
+                .map(meeting -> {
+                    LocalDate startDate = meeting.getMeetingsDates().stream()
+                            .map(MeetingsDate::getDate)
+                            .min(Comparator.naturalOrder())
+                            .orElse(null);
+                    LocalDate endDate = meeting.getMeetingsDates().stream()
+                            .map(MeetingsDate::getDate)
+                            .max(Comparator.naturalOrder())
+                            .orElse(null);
+                    return new MeetingEntryResponse(
+                            meeting.getId(),
+                            meeting.getTitle(),
+                            meeting.getCategory(),
+                            meeting.getDuration(),
+                            meeting.getStatus(),
+                            meeting.getRandomUrl(),
+                            startDate,
+                            endDate,
+                            meeting.getCreatedAt()
+                    );
+                })
+                .toList();
     }
 
     // ── 내부 유틸 ──────────────────────────────
