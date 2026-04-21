@@ -5,6 +5,7 @@ import com.back.nbe9112team06.domain.meeting.dto.FinalizeRequest;
 import com.back.nbe9112team06.domain.meeting.dto.request.MeetingCreateRequest;
 import com.back.nbe9112team06.domain.meeting.dto.response.MeetingCreateResponse;
 import com.back.nbe9112team06.domain.meeting.dto.response.MeetingEntryResponse;
+import com.back.nbe9112team06.domain.meeting.entity.Meeting;
 import com.back.nbe9112team06.domain.meeting.service.MeetingService;
 import com.back.nbe9112team06.domain.member.entity.Member;
 import com.back.nbe9112team06.global.response.ApiResponse;
@@ -18,6 +19,7 @@ import lombok.RequiredArgsConstructor;
 //import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/meetings")
@@ -27,6 +29,14 @@ public class MeetingController {
 
     private final MeetingService meetingService;
     private final Rq rq;
+
+    // ── 모임 목록 조회 ──────────────────────────────
+    @GetMapping
+    @Operation(summary = "내 모임 목록 조회")
+    public ApiResponse<List<MeetingEntryResponse>> getMyMeetings() {
+        Integer memberId = rq.getActor().getId();
+        return new ApiResponse<>("200-1", "모임 목록 조회 성공", meetingService.getMyMeetings(memberId));
+    }
 
     // ── 모임 생성 (develop) ──────────────────────────────
     @PostMapping
@@ -58,7 +68,16 @@ public class MeetingController {
         return new ApiResponse<>("200-1", "모임방 조회 성공", response);
     }
 
-    // 일정 확정
+    // ── 모임 삭제 ──────────────────────────────
+    @DeleteMapping("/{meetingId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @Operation(summary = "모임 삭제")
+    public void deleteMeeting(@PathVariable Integer meetingId) {
+        Integer memberId = rq.getActor().getId();
+        meetingService.deleteMeeting(meetingId, memberId);
+    }
+
+    // ── 일정 확정/취소/조회 ──────────────────────────────
     @PostMapping("/{meetingId}/confirm")
     public ApiResponse<ConfirmedScheduleResponse> confirm(
             @PathVariable Integer meetingId,
@@ -69,7 +88,6 @@ public class MeetingController {
                 meetingService.confirm(meetingId, memberId, request));
     }
 
-    // ── 일정 확정/취소/조회 ──────────────────────────────
     @DeleteMapping("/{meetingId}/confirm")
     public ApiResponse<Void> cancelConfirm(
             @PathVariable Integer meetingId
