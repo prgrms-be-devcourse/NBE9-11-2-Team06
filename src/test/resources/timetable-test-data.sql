@@ -10,9 +10,9 @@ VALUES
 -- =========================
 INSERT INTO meeting (id, title, status, category, duration, local_time, random_url, member_id, created_at, modified_at)
 VALUES 
-(1, '회의1', 'OPEN', 'GENERAL', 60, 'ASIA/SEOUL', 'url1', 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-(2, '회의2', 'OPEN', 'GENERAL', 60, 'ASIA/SEOUL', 'url2', 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-(3, '회의3', 'OPEN', 'GENERAL', 60, 'ASIA/SEOUL', 'url3', 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+(1, '회의1', 'PENDING', 'GENERAL', 60, 'ASIA/SEOUL', 'url1', 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(2, '회의2', 'PENDING', 'GENERAL', 60, 'ASIA/SEOUL', 'url2', 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(3, '회의3', 'PENDING', 'GENERAL', 60, 'ASIA/SEOUL', 'url3', 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
 
 -- =========================
 -- 2️⃣ PARTICIPANT

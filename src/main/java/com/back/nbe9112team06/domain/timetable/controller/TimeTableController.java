@@ -15,19 +15,19 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1")
+@RequestMapping("/api/meetings")
 public class TimeTableController {
 
     private final TimeTableService timeTableService;
 
     @GetMapping("/{meetingId}/timetable")
-    public TimeTableResponse getTimeTable(@PathVariable Integer meetingId) {
+    public ApiResponse<TimeTableResponse> getTimeTable(@PathVariable Integer meetingId) {
         timeTableService.aggregate(meetingId); // TODO: 병합 시 TimeBlock POST 후 실행되도록 수정
-        return timeTableService.getTimeTable(meetingId);
+        return new ApiResponse<>("200-1", "타임테이블 조회 성공", timeTableService.getTimeTable(meetingId));
     }
 
     @GetMapping("/{meetingId}/recommend")
-    public ResponseEntity<ApiResponse<List<RecommendedScheduleResponse>>> recommend(@PathVariable Integer meetingId) {
-        return ResponseEntity.ok(ApiResponse.ok(timeTableService.recommend(meetingId)));
+    public ApiResponse<List<RecommendedScheduleResponse>> recommend(@PathVariable Integer meetingId) {
+        return new ApiResponse<>("200-1", "추천 일정입니다.", timeTableService.recommend(meetingId));
     }
 }

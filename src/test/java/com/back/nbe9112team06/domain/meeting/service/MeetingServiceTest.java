@@ -7,6 +7,7 @@ import com.back.nbe9112team06.domain.meeting.entity.MeetingStatus;
 import com.back.nbe9112team06.domain.meeting.repository.MeetingRepository;
 import com.back.nbe9112team06.domain.member.entity.Member;
 import com.back.nbe9112team06.domain.member.entity.TimezoneType;
+import com.back.nbe9112team06.domain.member.repository.MemberRepository;
 import com.back.nbe9112team06.global.error.ErrorCode;
 import com.back.nbe9112team06.global.exception.BusinessException;
 import org.junit.jupiter.api.DisplayName;
@@ -30,6 +31,9 @@ class MeetingServiceTest {
 
     @Mock
     private MeetingRepository meetingRepository;
+
+    @Mock
+    private MemberRepository memberRepository;
 
     @InjectMocks
     private MeetingService meetingService;

@@ -44,6 +44,9 @@ public class Meeting extends BaseEntity {
     private List<Participant> participants = new ArrayList<>();
 
     @OneToMany(mappedBy = "meeting", cascade = {CascadeType.PERSIST, CascadeType.REMOVE}, orphanRemoval = true)
+    private List<MeetingsDate> meetingsDates = new ArrayList<>();
+
+    @OneToMany(mappedBy = "meeting", cascade = {CascadeType.PERSIST, CascadeType.REMOVE}, orphanRemoval = true)
     private List<TimeBlock> timeBlocks = new ArrayList<>();
 
     @OneToMany(mappedBy = "meeting", cascade = {CascadeType.PERSIST, CascadeType.REMOVE}, orphanRemoval = true)
@@ -63,5 +66,26 @@ public class Meeting extends BaseEntity {
 
     public boolean isHost(Integer memberId){
         return this.member != null && this.member.getId().equals(memberId);
+    }
+
+    public static Meeting create(String title, String category, Integer duration, Member member, String randomUrl) {
+        Meeting meeting = new Meeting();
+        meeting.title = title;
+        meeting.category = category;
+        meeting.duration = duration;
+        meeting.member = member;
+        meeting.randomUrl = randomUrl;
+        meeting.status = MeetingStatus.PENDING;
+        return meeting;
+    }
+
+    public void addMeetingsDate(MeetingsDate meetingsDate) {
+        meetingsDates.add(meetingsDate);
+        meetingsDate.assignMeeting(this);
+    }
+
+    public void addParticipant(Participant participant) {
+        participants.add(participant);
+        participant.assignMeeting(this);
     }
 }
