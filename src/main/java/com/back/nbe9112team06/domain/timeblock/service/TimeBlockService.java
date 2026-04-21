@@ -4,8 +4,10 @@ import com.back.nbe9112team06.domain.meeting.entity.Meeting;
 import com.back.nbe9112team06.domain.meeting.repository.MeetingRepository;
 import com.back.nbe9112team06.domain.participant.entity.Participant;
 import com.back.nbe9112team06.domain.participant.repository.ParticipantRepository;
+import com.back.nbe9112team06.domain.timeblock.dto.ParticipantsScheduleResponse;
 import com.back.nbe9112team06.domain.timeblock.dto.TimeBlockDeleteRequest;
 import com.back.nbe9112team06.domain.timeblock.dto.TimeBlockRequest;
+import com.back.nbe9112team06.domain.timeblock.dto.TimeRangeResponse;
 import com.back.nbe9112team06.domain.timeblock.entity.AvailableDateTime;
 import com.back.nbe9112team06.domain.timeblock.entity.AvailableTime;
 import com.back.nbe9112team06.domain.timeblock.entity.TimeBlock;
@@ -24,16 +26,22 @@ import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 @Service
 @RequiredArgsConstructor
 public class TimeBlockService {
+
     private final MeetingRepository meetingRepository;
     private final ParticipantRepository participantRepository;
     private final TimeBlockRepository timeBlockRepository;
     private final AvailableDateTimeRepository availableDateTimeRepository;
     private final AvailableTimeRepository availableTimeRepository;
 
+    // ── 타임블록 등록 ──────────────────────────────
     @Transactional
     public void registerTimeBlock(Integer meetingId, TimeBlockRequest request) {
         // 이 모임이 존재하는지 (Meeting 존재)
@@ -65,20 +73,89 @@ public class TimeBlockService {
 
         // AvailableDateTime 및 AvailableTime저장
         for(Map.Entry<LocalDate, List<LocalTime>> entry : dateTimeMap.entrySet()) {
-            LocalDate date = entry.getKey();
-            List<LocalTime> times = entry.getValue();
 
-            AvailableDateTime availableDateTime = AvailableDateTime.create(timeBlock, meeting, date);
+            AvailableDateTime availableDateTime = AvailableDateTime.create(timeBlock, meeting, entry.getKey());
             availableDateTimeRepository.save(availableDateTime);
 
-            for(LocalTime time : times){
+            for(LocalTime time : entry.getValue()){
                 AvailableTime availableTime = AvailableTime.create(availableDateTime, timeBlock, meeting, time);
                 availableTimeRepository.save(availableTime);
             }
-
         }
     }
 
+    // ── 타임블록 삭제 ──────────────────────────────
+    //삭제 메서드
+    @Transactional
+    public void deleteTImeBlock(Integer meetingId, TimeBlockDeleteRequest timeBlockDeleteRequest){
+        //  Meeting 존재 여부 확인
+        Meeting meeting = meetingRepository.findById(meetingId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.NOT_FOUND, "존재하지 않는 모임입니다."));
+
+        // 요청한 사람이 이 모임 참여자인지 (Participant 인증)
+        Participant participant = participantRepository.findByMeetingAndGuestNameAndGuestPassword(
+                        meeting,
+                        timeBlockDeleteRequest.getGuestName(),
+                        timeBlockDeleteRequest.getGuestPassword())
+                .orElseThrow(() -> new BusinessException(ErrorCode.ACCESS_DENIED, "이 모임 참여자가 아닙니다."));
+
+        // 삭제할 TimeBlock가 없음
+        TimeBlock timeBlock = timeBlockRepository.findByMeetingAndParticipant(meeting, participant)
+                .orElseThrow(() -> new BusinessException(ErrorCode.NOT_FOUND, "삭제할 시간이 없습니다."));
+
+        timeBlockRepository.delete(timeBlock);
+    }
+
+    // ── 참여자 목록 ──────────────────────────────
+    @Transactional(readOnly = true)
+    public List<ParticipantsScheduleResponse> getParticipantSchedules(Integer meetingId) {
+        List<TimeBlock> timeBlocks = timeBlockRepository.findWithAll(meetingId);
+        List<ParticipantsScheduleResponse> result = new ArrayList<>();
+
+        for (TimeBlock timeBlock : timeBlocks) {
+            String name = timeBlock.getParticipant().getGuestName();
+
+            Map<LocalDate, List<LocalTime>> dateToSlots = new TreeMap<>();
+            for (AvailableDateTime adt : timeBlock.getAvailableDateTimes()) {
+                adt.getAvailableTimes().stream()
+                        .map(AvailableTime::getTime)
+                        .forEach(t -> dateToSlots
+                                .computeIfAbsent(adt.getDate(), k -> new ArrayList<>())
+                                .add(t));
+            }
+
+            List<TimeRangeResponse> ranges = new ArrayList<>();
+            for (var entry : dateToSlots.entrySet()) {
+                List<LocalTime> sorted = entry.getValue().stream().sorted().toList();
+                ranges.addAll(toRanges(entry.getKey(), sorted));
+            }
+
+            result.add(new ParticipantsScheduleResponse(name, ranges));
+        }
+
+        return result;
+    }
+
+    private List<TimeRangeResponse> toRanges(LocalDate date, List<LocalTime> slots) {
+        List<TimeRangeResponse> ranges = new ArrayList<>();
+        if (slots.isEmpty()) return ranges;
+
+        LocalTime start = slots.get(0);
+        LocalTime prev = slots.get(0);
+
+        for (int i = 1; i < slots.size(); i++) {
+            LocalTime curr = slots.get(i);
+            if (!curr.equals(prev.plusMinutes(30))) {
+                ranges.add(new TimeRangeResponse(date, start, prev.plusMinutes(30)));
+                start = curr;
+            }
+            prev = curr;
+        }
+        ranges.add(new TimeRangeResponse(date, start, prev.plusMinutes(30)));
+        return ranges;
+    }
+
+    // ── 내부 유틸 ──────────────────────────────
     // 검증 메서드
     private void validateAvailableDateTime(List<String> availableDateTimes){
         // 중복 검증
@@ -107,7 +184,6 @@ public class TimeBlockService {
                 throw new BusinessException(ErrorCode.INVALID_REQUEST_PARAMETER, "30분 단위 시간이 아닙니다.");
             }
         }
-
     }
 
     // 날짜 별로 가능한 시간 목록 묶어서 Map으로 반환
@@ -130,24 +206,4 @@ public class TimeBlockService {
         return map;
     }
 
-    //삭제 메서드
-    @Transactional
-    public void deleteTImeBlock(Integer meetingId, TimeBlockDeleteRequest timeBlockDeleteRequest){
-        //  Meeting 존재 여부 확인
-        Meeting meeting = meetingRepository.findById(meetingId)
-                .orElseThrow(() -> new BusinessException(ErrorCode.NOT_FOUND, "존재하지 않는 모임입니다."));
-
-        // 요청한 사람이 이 모임 참여자인지 (Participant 인증)
-        Participant participant = participantRepository.findByMeetingAndGuestNameAndGuestPassword(
-                        meeting,
-                        timeBlockDeleteRequest.getGuestName(),
-                        timeBlockDeleteRequest.getGuestPassword())
-                .orElseThrow(() -> new BusinessException(ErrorCode.ACCESS_DENIED, "이 모임 참여자가 아닙니다."));
-
-        // 삭제할 TimeBlock가 없음
-        TimeBlock timeBlock = timeBlockRepository.findByMeetingAndParticipant(meeting, participant)
-                .orElseThrow(() -> new BusinessException(ErrorCode.NOT_FOUND, "삭제할 시간이 없습니다."));
-
-        timeBlockRepository.delete(timeBlock);
-    }
 }

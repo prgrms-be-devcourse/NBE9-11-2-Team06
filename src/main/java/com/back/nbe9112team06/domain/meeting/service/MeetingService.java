@@ -1,9 +1,12 @@
 package com.back.nbe9112team06.domain.meeting.service;
 
+import com.back.nbe9112team06.domain.meeting.dto.ConfirmedScheduleResponse;
+import com.back.nbe9112team06.domain.meeting.dto.FinalizeRequest;
 import com.back.nbe9112team06.domain.meeting.dto.request.MeetingCreateRequest;
 import com.back.nbe9112team06.domain.meeting.dto.response.MeetingCreateResponse;
 import com.back.nbe9112team06.domain.meeting.dto.response.MeetingEntryResponse;
 import com.back.nbe9112team06.domain.meeting.entity.Meeting;
+import com.back.nbe9112team06.domain.meeting.entity.MeetingStatus;
 import com.back.nbe9112team06.domain.meeting.entity.MeetingsDate;
 import com.back.nbe9112team06.domain.meeting.repository.MeetingRepository;
 import com.back.nbe9112team06.domain.member.entity.Member;
@@ -21,6 +24,7 @@ import java.util.Comparator;
 @Service
 @RequiredArgsConstructor
 public class MeetingService {
+
     private static final String URL_CHAR_POOL = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
     private static final int URL_LENGTH = 10;
 
@@ -28,6 +32,7 @@ public class MeetingService {
     private final MemberRepository memberRepository;
     private final SecureRandom secureRandom = new SecureRandom();
 
+    // ── 모임 생성 ──────────────────────────────
     @Transactional
     public MeetingCreateResponse createMeeting(Integer memberId, MeetingCreateRequest request) {
         if (request.startDate().isAfter(request.endDate())) {
@@ -84,6 +89,58 @@ public class MeetingService {
         );
     }
 
+    // ── 일정 확정 ──────────────────────────────
+    @Transactional
+    public ConfirmedScheduleResponse confirm(Integer meetingId, Integer memberId, FinalizeRequest request) {
+        Meeting meeting = meetingRepository.findById(meetingId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.MEETING_NOT_FOUND));
+
+        if (!meeting.isHost(memberId)) {
+            throw new BusinessException(ErrorCode.NOT_MEETING_HOST);
+        }
+
+        if (meeting.getStatus() == MeetingStatus.CONFIRMED) {
+            throw new BusinessException(ErrorCode.ALREADY_CONFIRMED);
+        }
+
+        meeting.confirm(request.date(), request.time());
+        return ConfirmedScheduleResponse.from(request.date(), request.time(), MeetingStatus.CONFIRMED, meeting.getTitle());
+    }
+
+    @Transactional
+    public void cancelConfirm(Integer meetingId, Integer memberId) {
+        Meeting meeting = meetingRepository.findById(meetingId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.MEETING_NOT_FOUND));
+
+        if (!meeting.isHost(memberId)) {
+            throw new BusinessException(ErrorCode.NOT_MEETING_HOST);
+        }
+
+        if (meeting.getStatus() != MeetingStatus.CONFIRMED) {
+            throw new BusinessException(ErrorCode.NOT_CONFIRMED);
+        }
+
+        meeting.cancelConfirm();
+    }
+
+    @Transactional(readOnly = true)
+    public ConfirmedScheduleResponse getConfirmedSchedule(Integer meetingId) {
+        Meeting meeting = meetingRepository.findById(meetingId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.MEETING_NOT_FOUND));
+
+        if (meeting.getStatus() != MeetingStatus.CONFIRMED || meeting.getConfirmedDate() == null) {
+            throw new BusinessException(ErrorCode.NOT_CONFIRMED);
+        }
+
+        return ConfirmedScheduleResponse.from(
+                meeting.getConfirmedDate(),
+                meeting.getConfirmedTime(),
+                meeting.getStatus(),
+                meeting.getTitle()
+        );
+    }
+
+    // ── 내부 유틸 ──────────────────────────────
     private String generateUniqueUrl() {
         String candidate = randomString(URL_LENGTH);
         while (meetingRepository.existsByRandomUrl(candidate)) {

@@ -8,11 +8,10 @@ import org.springframework.http.ProblemDetail;
 import java.net.URI;
 import java.time.LocalDateTime;
 
-
 @Getter
 @RequiredArgsConstructor
 public enum ErrorCode {
-    // ==================== 공통 (COMMON) ====================
+    // ==================== 공통 ====================
     INTERNAL_SERVER_ERROR(
             HttpStatus.INTERNAL_SERVER_ERROR,
             "COMMON-001",
@@ -38,6 +37,8 @@ public enum ErrorCode {
             "COMMON-005",
             "지원하지 않는 Content-Type입니다."
     ),
+
+    // ==================== 추가 예외 코드 (테스트용) ====================
     TYPE_MISMATCH(
             HttpStatus.BAD_REQUEST,
             "COMMON-006",
@@ -115,16 +116,28 @@ public enum ErrorCode {
             "MEETING-001",
             "존재하지 않는 모임입니다."
     ),
+    NOT_MEETING_HOST(
+            HttpStatus.FORBIDDEN,
+            "MEETING-002",
+            "모임장만 일정을 확정할 수 있습니다."
+    ),
+    ALREADY_CONFIRMED(
+            HttpStatus.CONFLICT,
+            "MEETING-003",
+            "이미 확정된 모임입니다."
+    ),
+    NOT_CONFIRMED(
+            HttpStatus.BAD_REQUEST,
+            "MEETING-004",
+            "확정되지 않은 모임입니다."
+    ),
 
     // ==================== 타임블럭 (TIMEBLOCK) ====================
     TIMEBLOCK_NOT_FOUND(
             HttpStatus.NOT_FOUND,
             "TIMEBLOCK-001",
             "존재하지 않는 타임블럭입니다."
-    )
-    ;
-
-
+    );
 
     private final HttpStatus status;
     private final String code;      // 기계 식별용: "AUTH-001"

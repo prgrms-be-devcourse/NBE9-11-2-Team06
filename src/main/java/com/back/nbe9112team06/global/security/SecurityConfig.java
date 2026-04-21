@@ -66,6 +66,8 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/api/auth/logout").authenticated()
                         .requestMatchers(HttpMethod.POST, "/api/meetings").authenticated()
                         .requestMatchers(HttpMethod.DELETE, "/api/members").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/api/meetings/*/confirm").authenticated()
+                        .requestMatchers(HttpMethod.DELETE, "/api/meetings/*/confirm").authenticated()
                         .anyRequest().permitAll()
                 )
                 .csrf(csrf -> csrf.disable())

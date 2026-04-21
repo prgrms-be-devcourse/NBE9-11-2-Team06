@@ -8,6 +8,7 @@ import com.back.nbe9112team06.domain.timeblock.entity.AvailableTime;
 import com.back.nbe9112team06.domain.timeblock.entity.TimeBlock;
 import com.back.nbe9112team06.domain.timeblock.repository.TimeBlockRepository;
 import com.back.nbe9112team06.domain.timetable.dto.DateResponse;
+import com.back.nbe9112team06.domain.timetable.dto.RecommendedScheduleResponse;
 import com.back.nbe9112team06.domain.timetable.dto.TimeResponse;
 import com.back.nbe9112team06.domain.timetable.dto.TimeTableResponse;
 import com.back.nbe9112team06.domain.timetable.entity.DateInfo;
@@ -190,4 +191,82 @@ public class TimeTableService {
 
         return new TimeTableResponse(dateResponses);
     }
+
+    @Transactional(readOnly = true)
+    public List<RecommendedScheduleResponse> recommend(Integer meetingId) {
+
+        // 모임 전체 시간표 조회
+        List<TimeTable> tables = timeTableRepository.findByMeeting_Id(meetingId);
+        if (tables.isEmpty()) return List.of();
+
+        // 최소 회의시간(duration)을 슬롯 개수(windowSize)로 변환
+        TimeTable table = tables.get(0);
+        int windowSize = table.getMeeting().getDuration() / 30;
+        if (windowSize < 1) return List.of();
+
+        // 추천 후보 저장
+        List<RecommendedScheduleResponse> candidates = new ArrayList<>();
+
+        // 날짜별로 추천 가능한 시간 찾기
+        for (DateInfo dateInfo : table.getDateInfos()) {
+            List<TimeInfo> slots = dateInfo.getTimeInfos().stream()
+                    .sorted(Comparator.comparing(TimeInfo::getTime))
+                    .toList();
+
+            for (List<TimeInfo> group : groupConsecutiveSlots(slots)) {
+                if (group.size() < windowSize) continue;
+
+                // 슬라이딩 윈도우로 duration 길이만큼 후보 구간 생성
+                for (int i = 0; i <= group.size() - windowSize; i++) {
+                    List<TimeInfo> window = group.subList(i, i + windowSize);
+
+                    // 구간 내 최소 참여 가능 인원 계산
+                    int minCount = window.stream()
+                            .mapToInt(ti -> ti.getAdjustResultList().size())
+                            .min()
+                            .orElse(0);
+
+                    if (minCount == 0) continue;
+
+                    LocalTime startTime = window.get(0).getTime();
+                    LocalTime endTime = window.get(windowSize - 1).getTime().plusMinutes(30);
+
+                    candidates.add(new RecommendedScheduleResponse(
+                            dateInfo.getDate(), startTime, endTime, minCount
+                    ));
+                }
+            }
+        }
+
+        // 참여 인원 많은 순 -> 빠른 날짜/시간 순으로 정렬 후 상위 5개 반환
+        return candidates.stream()
+                .sorted(Comparator.comparingInt(RecommendedScheduleResponse::availableCount).reversed()
+                        .thenComparing(RecommendedScheduleResponse::date)
+                        .thenComparing(RecommendedScheduleResponse::startTime))
+                .limit(5)
+                .toList();
+    }
+
+    private List<List<TimeInfo>> groupConsecutiveSlots(List<TimeInfo> slots) {
+        List<List<TimeInfo>> groups = new ArrayList<>();
+        if (slots.isEmpty()) return groups;
+
+        List<TimeInfo> current = new ArrayList<>();
+        current.add(slots.get(0));
+
+        for (int i = 1; i < slots.size(); i++) {
+            LocalTime prev = slots.get(i - 1).getTime();
+            LocalTime curr = slots.get(i).getTime();
+            if (curr.equals(prev.plusMinutes(30))) {
+                current.add(slots.get(i));
+            } else {
+                groups.add(current);
+                current = new ArrayList<>();
+                current.add(slots.get(i));
+            }
+        }
+        groups.add(current);
+        return groups;
+    }
+
 }

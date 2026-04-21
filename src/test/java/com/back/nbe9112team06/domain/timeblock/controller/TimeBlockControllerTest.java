@@ -50,7 +50,7 @@ public class TimeBlockControllerTest {
         //when
         mockMvc.perform(
 
-                post("/api/v1/meetings/{meetingId}/time-blocks", meetingId)
+                post("/api/meetings/{meetingId}/time-blocks", meetingId)
                         .with(csrf()) // csrf 비활성화
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody)
@@ -73,7 +73,7 @@ public class TimeBlockControllerTest {
         //when
         mockMvc.perform(
 
-                        post("/api/v1/meetings/{meetingId}/time-blocks", meetingId)
+                        post("/api/meetings/{meetingId}/time-blocks", meetingId)
                                 .with(csrf()) // csrf 비활성화
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(requestBody)
@@ -96,7 +96,7 @@ public class TimeBlockControllerTest {
         //when
         mockMvc.perform(
 
-                        post("/api/v1/meetings/{meetingId}/time-blocks", meetingId)
+                        post("/api/meetings/{meetingId}/time-blocks", meetingId)
                                 .with(csrf()) // csrf 비활성화
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(requestBody)
@@ -119,7 +119,7 @@ public class TimeBlockControllerTest {
 
         //when
         mockMvc.perform(
-                delete("/api/v1/meetings/{meetingId}/time-blocks", meetingId)
+                delete("/api/meetings/{meetingId}/time-blocks", meetingId)
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody)
