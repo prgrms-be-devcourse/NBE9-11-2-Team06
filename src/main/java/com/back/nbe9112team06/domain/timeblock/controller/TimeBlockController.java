@@ -4,6 +4,7 @@ import com.back.nbe9112team06.domain.timeblock.dto.ParticipantsScheduleResponse;
 import com.back.nbe9112team06.domain.timeblock.dto.TimeBlockDeleteRequest;
 import com.back.nbe9112team06.domain.timeblock.dto.TimeBlockRequest;
 import com.back.nbe9112team06.domain.timeblock.service.TimeBlockService;
+import com.back.nbe9112team06.domain.timetable.service.TimeTableService;
 import com.back.nbe9112team06.global.response.ApiResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -19,16 +20,19 @@ import java.util.List;
 public class TimeBlockController {
 
     private final TimeBlockService timeBlockService;
+    private final TimeTableService timeTableService;
 
     @PostMapping("/{meetingId}/time-blocks")
     public ResponseEntity<Void> addTimeBlock(@PathVariable Integer meetingId, @RequestBody @Valid TimeBlockRequest timeBlockRequest){
         timeBlockService.registerTimeBlock(meetingId, timeBlockRequest);
+        timeTableService.aggregate(meetingId);
         return ResponseEntity.status(201).build();
     }
 
     @DeleteMapping("/{meetingId}/time-blocks")
     public ResponseEntity<Void> deleteTimeBlock(@PathVariable Integer meetingId, @RequestBody @Valid TimeBlockDeleteRequest timeBlockDeleteRequest){
         timeBlockService.deleteTImeBlock(meetingId, timeBlockDeleteRequest);
+        timeTableService.aggregate(meetingId);
         return ResponseEntity.status(204).build();
     }
 
