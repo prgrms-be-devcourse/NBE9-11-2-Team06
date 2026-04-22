@@ -87,7 +87,7 @@ public class TimeBlockService {
     // ── 타임블록 삭제 ──────────────────────────────
     //삭제 메서드
     @Transactional
-    public void deleteTImeBlock(Integer meetingId, TimeBlockDeleteRequest timeBlockDeleteRequest){
+    public void deleteTimeBlock(Integer meetingId, TimeBlockDeleteRequest timeBlockDeleteRequest){
         //  Meeting 존재 여부 확인
         Meeting meeting = meetingRepository.findById(meetingId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.NOT_FOUND, "존재하지 않는 모임입니다."));

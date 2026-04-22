@@ -31,7 +31,7 @@ public class TimeBlockController {
 
     @DeleteMapping("/{meetingId}/time-blocks")
     public ResponseEntity<Void> deleteTimeBlock(@PathVariable Integer meetingId, @RequestBody @Valid TimeBlockDeleteRequest timeBlockDeleteRequest){
-        timeBlockService.deleteTImeBlock(meetingId, timeBlockDeleteRequest);
+        timeBlockService.deleteTimeBlock(meetingId, timeBlockDeleteRequest);
         timeTableService.aggregate(meetingId);
         return ResponseEntity.status(204).build();
     }
