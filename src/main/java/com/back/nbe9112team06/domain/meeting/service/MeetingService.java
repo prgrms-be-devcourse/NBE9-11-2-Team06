@@ -76,7 +76,10 @@ public class MeetingService {
                 meeting.getStatus(),
                 meeting.getRandomUrl(),
                 dates,
-                meeting.getCreatedAt()
+                meeting.getCreatedAt(),
+                meeting.getConfirmedDate(),
+                meeting.getConfirmedTime(),
+                meeting.getMember() != null ? meeting.getMember().getId() : null
         );
     }
 
@@ -108,7 +111,7 @@ public class MeetingService {
         }
 
         meeting.confirm(request.date(), request.time());
-        return ConfirmedScheduleResponse.from(request.date(), request.time(), MeetingStatus.CONFIRMED, meeting.getTitle());
+        return ConfirmedScheduleResponse.from(request.date(), request.time(), MeetingStatus.CONFIRMED, meeting.getTitle(), meeting.getDuration());
     }
 
     @Transactional
@@ -140,7 +143,8 @@ public class MeetingService {
                 meeting.getConfirmedDate(),
                 meeting.getConfirmedTime(),
                 meeting.getStatus(),
-                meeting.getTitle()
+                meeting.getTitle(),
+                meeting.getDuration()
         );
     }
 
@@ -162,7 +166,10 @@ public class MeetingService {
                             meeting.getStatus(),
                             meeting.getRandomUrl(),
                             dates,
-                            meeting.getCreatedAt()
+                            meeting.getCreatedAt(),
+                            meeting.getConfirmedDate(),
+                            meeting.getConfirmedTime(),
+                            meeting.getMember() != null ? meeting.getMember().getId() : null
                     );
                 })
                 .toList();
