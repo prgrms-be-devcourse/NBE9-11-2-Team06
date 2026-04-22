@@ -59,8 +59,7 @@ class MeetingControllerTest {
                                 .content("""
                                         {
                                           "title": "팀 회의",
-                                          "startDate": "2026-04-20",
-                                          "endDate": "2026-04-22",
+                                          "dates": ["2026-04-20", "2026-04-21", "2026-04-22"],
                                           "duration": 60,
                                           "category": "PROJECT"
                                         }
@@ -111,8 +110,7 @@ class MeetingControllerTest {
                                 .content("""
                                         {
                                           "title": "로그인 흐름 테스트",
-                                          "startDate": "2026-04-20",
-                                          "endDate": "2026-04-21",
+                                          "dates": ["2026-04-20", "2026-04-21", "2026-04-22"],
                                           "duration": 30,
                                           "category": "PROJECT"
                                         }
@@ -133,8 +131,7 @@ class MeetingControllerTest {
                                 .content("""
                                         {
                                           "title": "팀 회의",
-                                          "startDate": "2026-04-20",
-                                          "endDate": "2026-04-22",
+                                          "dates": ["2026-04-20", "2026-04-21", "2026-04-22"],
                                           "duration": 60,
                                           "category": "PROJECT"
                                         }
@@ -154,8 +151,7 @@ class MeetingControllerTest {
                                 .content("""
                                         {
                                           "title": "팀 회의",
-                                          "startDate": "2026-04-20",
-                                          "endDate": "2026-04-22",
+                                          "dates": ["2026-04-20", "2026-04-21", "2026-04-22"],
                                           "duration": 60,
                                           "category": "PROJECT"
                                         }
@@ -167,8 +163,8 @@ class MeetingControllerTest {
     }
 
     @Test
-    @DisplayName("모임방 생성 - 시작일이 종료일보다 늦으면 400을 반환한다")
-    void createMeeting_fail_whenStartDateAfterEndDate() throws Exception {
+    @DisplayName("모임방 생성 - 날짜를 입력하지 않으면 400을 반환한다")
+    void createMeeting_fail_whenDatesEmpty() throws Exception {
         Member member = memberRepository.save(new Member(
                 "creator2@example.com",
                 "hashedPassword",
@@ -184,8 +180,6 @@ class MeetingControllerTest {
                                 .content("""
                                         {
                                           "title": "팀 회의",
-                                          "startDate": "2026-04-25",
-                                          "endDate": "2026-04-22",
                                           "duration": 60,
                                           "category": "PROJECT"
                                         }
@@ -209,8 +203,7 @@ class MeetingControllerTest {
                                 .content("""
                                         {
                                           "title": "팀 회의",
-                                          "startDate": "2026-04-20",
-                                          "endDate": "2026-04-22",
+                                          "dates": ["2026-04-20", "2026-04-21", "2026-04-22"],
                                           "duration": 60,
                                           "category": "PROJECT"
                                         }
@@ -238,8 +231,7 @@ class MeetingControllerTest {
                                 .content("""
                                         {
                                           "title": "입장 테스트 방",
-                                          "startDate": "2026-04-20",
-                                          "endDate": "2026-04-23",
+                                          "dates": ["2026-04-20", "2026-04-21", "2026-04-22"],
                                           "duration": 45,
                                           "category": "STUDY"
                                         }
@@ -259,8 +251,7 @@ class MeetingControllerTest {
                 .andExpect(jsonPath("$.msg").value("모임방 조회 성공"))
                 .andExpect(jsonPath("$.data.roomUrl").value(roomUrl))
                 .andExpect(jsonPath("$.data.title").value("입장 테스트 방"))
-                .andExpect(jsonPath("$.data.startDate").value("2026-04-20"))
-                .andExpect(jsonPath("$.data.endDate").value("2026-04-23"));
+                .andExpect(jsonPath("$.data.dates[0]").value("2026-04-20"));
     }
 
     @Test

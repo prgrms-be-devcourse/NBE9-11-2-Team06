@@ -165,8 +165,7 @@ class ParticipantControllerTest {
                                 .content("""
                                         {
                                           "title": "참가 테스트 모임",
-                                          "startDate": "2026-04-20",
-                                          "endDate": "2026-04-22",
+                                          "dates": ["2026-04-20", "2026-04-21", "2026-04-22"],
                                           "duration": 60,
                                           "category": "PROJECT"
                                         }
