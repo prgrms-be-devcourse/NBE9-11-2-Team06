@@ -103,7 +103,9 @@ public class TimeBlockService {
         TimeBlock timeBlock = timeBlockRepository.findByMeetingAndParticipant(meeting, participant)
                 .orElseThrow(() -> new BusinessException(ErrorCode.NOT_FOUND, "삭제할 시간이 없습니다."));
 
+        // TimeBlock 먼저 삭제 (participant_id FK 제거), 이후 Participant 삭제
         timeBlockRepository.delete(timeBlock);
+        participantRepository.delete(participant);
     }
 
     // ── 참여자 목록 ──────────────────────────────
