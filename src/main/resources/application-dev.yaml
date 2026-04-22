@@ -22,4 +22,4 @@ jwt:
 
 app:
   cookie:
-    secure: false
+    secure: true
