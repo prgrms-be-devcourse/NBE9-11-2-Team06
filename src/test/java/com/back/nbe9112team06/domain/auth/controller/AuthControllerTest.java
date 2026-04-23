@@ -103,7 +103,6 @@ class AuthControllerTest {
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(loginBody(TEST_EMAIL, TEST_PASSWORD)))
                     .andExpect(status().isOk())
-                    .andExpect(jsonPath("$.data.memberId").value(savedMember.getId()))
                     .andExpect(jsonPath("$.data.nickname").value(TEST_NICKNAME))
                     .andExpect(jsonPath("$.data.email").doesNotExist())
                     .andExpect(jsonPath("$.data.passwordHash").doesNotExist());
@@ -194,7 +193,6 @@ class AuthControllerTest {
                     .andDo(print())
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.resultCode").value("200-1"))
-                    .andExpect(jsonPath("$.data.memberId").value(savedMember.getId()))
                     .andExpect(jsonPath("$.data.nickname").value(TEST_NICKNAME));
         }
 

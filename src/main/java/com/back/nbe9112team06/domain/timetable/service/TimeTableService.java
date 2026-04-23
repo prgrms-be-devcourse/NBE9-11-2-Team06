@@ -2,7 +2,7 @@ package com.back.nbe9112team06.domain.timetable.service;
 
 import com.back.nbe9112team06.domain.adjustresult.entity.AdjustResult;
 import com.back.nbe9112team06.domain.meeting.entity.Meeting;
-import com.back.nbe9112team06.domain.meeting.repository.MeetingRepository;
+import com.back.nbe9112team06.domain.meeting.service.MeetingService;
 import com.back.nbe9112team06.domain.timeblock.entity.AvailableDateTime;
 import com.back.nbe9112team06.domain.timeblock.entity.AvailableTime;
 import com.back.nbe9112team06.domain.timeblock.entity.TimeBlock;
@@ -39,7 +39,7 @@ public class TimeTableService {
 
     private final TimeTableRepository timeTableRepository;
     private final TimeBlockRepository timeBlockRepository;
-    private final MeetingRepository meetingRepository;
+    private final MeetingService meetingService;
 
     @PersistenceContext
     private EntityManager em;
@@ -48,8 +48,7 @@ public class TimeTableService {
     @Transactional
     public void aggregate(Integer meetingId) {
 
-        Meeting meeting = meetingRepository.findById(meetingId)
-                .orElseThrow(() -> new BusinessException(ErrorCode.MEETING_NOT_FOUND));
+        Meeting meeting = meetingService.getMeetingOrThrow(meetingId);
 
         //기존 타임테이블 제거 후 생성, orphanRemoval
         deleteAllByMeetingId(meetingId);

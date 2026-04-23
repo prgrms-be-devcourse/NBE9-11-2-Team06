@@ -119,7 +119,7 @@ public enum ErrorCode {
     NOT_MEETING_HOST(
             HttpStatus.FORBIDDEN,
             "MEETING-002",
-            "모임장만 일정을 확정할 수 있습니다."
+            "해당 모임의 호스트(방장)만 가능합니다."
     ),
     ALREADY_CONFIRMED(
             HttpStatus.CONFLICT,
@@ -130,6 +130,28 @@ public enum ErrorCode {
             HttpStatus.BAD_REQUEST,
             "MEETING-004",
             "확정되지 않은 모임입니다."
+    ),
+    MEETING_NO_PARTICIPANTS(
+            HttpStatus.BAD_REQUEST,
+            "MEETING-005",
+            "참여자가 없는 모임은 일정을 확정할 수 없습니다."
+    ),
+
+    // ==================== 참가자 (PARTICIPANT) ====================
+    PARTICIPANT_NOT_FOUND(
+            HttpStatus.NOT_FOUND,
+            "PARTICIPANT-001",
+            "해당 모임에 참여하신 기록을 찾을 수 없습니다."
+    ),
+    DUPLICATE_PARTICIPANT(  // ← 선택: 동일 이름+비밀번호 중복 가입 방지
+            HttpStatus.CONFLICT,
+            "PARTICIPANT-002",
+            "이미 해당 이름과 비밀번호로 참여하셨습니다."
+    ),
+    INVALID_PARTICIPANT_CREDENTIALS(  // ← 선택: 비밀번호 불일치 시 (인증 용도)
+            HttpStatus.BAD_REQUEST,
+            "PARTICIPANT-003",
+            "참가자 이름 또는 비밀번호가 올바르지 않습니다."
     ),
 
     // ==================== 타임블럭 (TIMEBLOCK) ====================

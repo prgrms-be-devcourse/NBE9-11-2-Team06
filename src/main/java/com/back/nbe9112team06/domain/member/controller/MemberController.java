@@ -67,7 +67,7 @@ public class MemberController {
         Member member = memberService.signup(request);
         return new ApiResponse<>(
                 "201-1", "회원가입에 성공하셨습니다",
-                new SignupResponse(member.getId(), member.getEmail(),member.getNickname())
+                new SignupResponse(member.getEmail(),member.getNickname())
         );
     }
 

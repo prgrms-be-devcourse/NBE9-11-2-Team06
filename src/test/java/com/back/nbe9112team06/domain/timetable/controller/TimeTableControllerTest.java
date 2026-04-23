@@ -108,7 +108,7 @@ class TimeTableControllerTest {
     void 타임블럭없으면_aggregate_시_예외발생() {
 
         // 타임블럭 없는 meetingId
-        Integer meetingId = 4;
+        Integer meetingId = 10;
 
         assertThatThrownBy(() -> timeTableService.aggregate(meetingId))
                 .isInstanceOf(BusinessException.class);

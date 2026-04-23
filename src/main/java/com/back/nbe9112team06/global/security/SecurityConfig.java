@@ -63,11 +63,9 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/h2-console/**").permitAll()
                         .requestMatchers(HttpMethod.GET,  "/api/auth/me").authenticated()
-                        .requestMatchers(HttpMethod.POST, "/api/auth/logout").authenticated()
-                        .requestMatchers(HttpMethod.POST, "/api/meetings").authenticated()
-                        .requestMatchers(HttpMethod.DELETE, "/api/members").authenticated()
-                        .requestMatchers(HttpMethod.POST, "/api/meetings/*/confirm").authenticated()
-                        .requestMatchers(HttpMethod.DELETE, "/api/meetings/*/confirm").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/api/auth/logout","/api/meetings",
+                                "/api/meetings/*/confirm").authenticated()
+                        .requestMatchers(HttpMethod.DELETE, "/api/members","/api/meetings/*/confirm").authenticated()
                         .anyRequest().permitAll()
                 )
                 .csrf(csrf -> csrf.disable())

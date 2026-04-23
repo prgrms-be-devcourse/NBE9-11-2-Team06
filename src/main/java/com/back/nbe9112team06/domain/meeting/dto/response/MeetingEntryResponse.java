@@ -17,8 +17,7 @@ public record MeetingEntryResponse(
         List<LocalDate> dates,
         LocalDateTime createdAt,
         LocalDate confirmedDate,
-        LocalTime confirmedTime,
-        Integer hostMemberId
+        LocalTime confirmedTime
 ) {
 }
 
