@@ -1,6 +1,7 @@
 package com.back.nbe9112team06.domain.timetable.controller;
 
 import com.back.nbe9112team06.domain.timetable.dto.TimeTableResponse;
+import com.back.nbe9112team06.domain.timetable.repository.TimeTableRepository;
 import com.back.nbe9112team06.domain.timetable.service.TimeTableService;
 import com.back.nbe9112team06.global.exception.BusinessException;
 import org.junit.jupiter.api.Test;
@@ -9,8 +10,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.transaction.annotation.Transactional;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @SpringBootTest
 @Transactional
@@ -20,7 +22,7 @@ class TimeTableControllerTest {
 
     @Autowired
     TimeTableService timeTableService;
-
+    private TimeTableRepository timeTableRepository;
 
     @Test
     void aggregate_1번방_정확한_결과_검증() {
@@ -113,4 +115,9 @@ class TimeTableControllerTest {
         assertThatThrownBy(() -> timeTableService.aggregate(meetingId))
                 .isInstanceOf(BusinessException.class);
     }
+
+
+
 }
+
+
