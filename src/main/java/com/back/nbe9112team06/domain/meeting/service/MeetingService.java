@@ -10,7 +10,7 @@ import com.back.nbe9112team06.domain.meeting.entity.MeetingStatus;
 import com.back.nbe9112team06.domain.meeting.entity.MeetingsDate;
 import com.back.nbe9112team06.domain.meeting.repository.MeetingRepository;
 import com.back.nbe9112team06.domain.member.entity.Member;
-import com.back.nbe9112team06.domain.member.repository.MemberRepository;
+import com.back.nbe9112team06.domain.member.service.MemberService;
 import com.back.nbe9112team06.global.error.ErrorCode;
 import com.back.nbe9112team06.global.exception.BusinessException;
 import lombok.RequiredArgsConstructor;
@@ -19,7 +19,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.security.SecureRandom;
 import java.time.LocalDate;
-import java.util.Comparator;
 import java.util.List;
 
 @Service
@@ -30,14 +29,14 @@ public class MeetingService {
     private static final int URL_LENGTH = 10;
 
     private final MeetingRepository meetingRepository;
-    private final MemberRepository memberRepository;
+    private final MemberService memberService;
     private final SecureRandom secureRandom = new SecureRandom();
 
     // ── 모임 생성 ──────────────────────────────
     @Transactional
     public MeetingCreateResponse createMeeting(Integer memberId, MeetingCreateRequest request) {
 
-        Member member = memberRepository.findById(memberId)
+        Member member = memberService.findById(memberId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.MEMBER_NOT_FOUND));
 
         String randomUrl = generateUniqueUrl();
@@ -60,8 +59,7 @@ public class MeetingService {
 
     @Transactional(readOnly = true)
     public MeetingEntryResponse getMeetingByRandomUrl(String randomUrl) {
-        Meeting meeting = meetingRepository.findByRandomUrl(randomUrl)
-                .orElseThrow(() -> new BusinessException(ErrorCode.NOT_FOUND));
+        Meeting meeting = findMeetingByRandomUrlInternal(randomUrl);
 
         List<LocalDate> dates = meeting.getMeetingsDates().stream()
                 .map(MeetingsDate::getDate)
@@ -76,15 +74,16 @@ public class MeetingService {
                 meeting.getStatus(),
                 meeting.getRandomUrl(),
                 dates,
-                meeting.getCreatedAt()
+                meeting.getCreatedAt(),
+                meeting.getConfirmedDate(),
+                meeting.getConfirmedTime()
         );
     }
 
     // ── 모임 삭제 ──────────────────────────────
     @Transactional
     public void deleteMeeting(Integer meetingId, Integer memberId) {
-        Meeting meeting = meetingRepository.findById(meetingId)
-                .orElseThrow(() -> new BusinessException(ErrorCode.MEETING_NOT_FOUND));
+        Meeting meeting = findMeetingInternal(meetingId);
 
         if (!meeting.isHost(memberId)) {
             throw new BusinessException(ErrorCode.NOT_MEETING_HOST);
@@ -93,14 +92,23 @@ public class MeetingService {
         meetingRepository.delete(meeting);
     }
 
+    @Transactional(readOnly = true)
+    public boolean checkIsHost(String randomUrl, Integer memberId) {
+        Meeting meeting = findMeetingByRandomUrlInternal(randomUrl);
+        return meeting.isHost(memberId);
+    }
+
     // ── 일정 확정 ──────────────────────────────
     @Transactional
     public ConfirmedScheduleResponse confirm(Integer meetingId, Integer memberId, FinalizeRequest request) {
-        Meeting meeting = meetingRepository.findById(meetingId)
-                .orElseThrow(() -> new BusinessException(ErrorCode.MEETING_NOT_FOUND));
+        Meeting meeting = findMeetingInternal(meetingId);
 
         if (!meeting.isHost(memberId)) {
             throw new BusinessException(ErrorCode.NOT_MEETING_HOST);
+        }
+
+        if (meeting.getParticipants().isEmpty()) {
+            throw new BusinessException(ErrorCode.MEETING_NO_PARTICIPANTS);
         }
 
         if (meeting.getStatus() == MeetingStatus.CONFIRMED) {
@@ -108,13 +116,12 @@ public class MeetingService {
         }
 
         meeting.confirm(request.date(), request.time());
-        return ConfirmedScheduleResponse.from(request.date(), request.time(), MeetingStatus.CONFIRMED, meeting.getTitle());
+        return ConfirmedScheduleResponse.from(request.date(), request.time(), MeetingStatus.CONFIRMED, meeting.getTitle(), meeting.getDuration());
     }
 
     @Transactional
     public void cancelConfirm(Integer meetingId, Integer memberId) {
-        Meeting meeting = meetingRepository.findById(meetingId)
-                .orElseThrow(() -> new BusinessException(ErrorCode.MEETING_NOT_FOUND));
+        Meeting meeting = findMeetingInternal(meetingId);
 
         if (!meeting.isHost(memberId)) {
             throw new BusinessException(ErrorCode.NOT_MEETING_HOST);
@@ -129,8 +136,7 @@ public class MeetingService {
 
     @Transactional(readOnly = true)
     public ConfirmedScheduleResponse getConfirmedSchedule(Integer meetingId) {
-        Meeting meeting = meetingRepository.findById(meetingId)
-                .orElseThrow(() -> new BusinessException(ErrorCode.MEETING_NOT_FOUND));
+        Meeting meeting = findMeetingInternal(meetingId);
 
         if (meeting.getStatus() != MeetingStatus.CONFIRMED || meeting.getConfirmedDate() == null) {
             throw new BusinessException(ErrorCode.NOT_CONFIRMED);
@@ -140,7 +146,8 @@ public class MeetingService {
                 meeting.getConfirmedDate(),
                 meeting.getConfirmedTime(),
                 meeting.getStatus(),
-                meeting.getTitle()
+                meeting.getTitle(),
+                meeting.getDuration()
         );
     }
 
@@ -162,10 +169,25 @@ public class MeetingService {
                             meeting.getStatus(),
                             meeting.getRandomUrl(),
                             dates,
-                            meeting.getCreatedAt()
+                            meeting.getCreatedAt(),
+                            meeting.getConfirmedDate(),
+                            meeting.getConfirmedTime()
                     );
                 })
                 .toList();
+    }
+
+    // 외부 유틸
+    @Transactional(readOnly = true)
+    public Meeting getMeetingOrThrow(Integer meetingId) {
+        return meetingRepository.findById(meetingId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.MEETING_NOT_FOUND));
+    }
+
+    @Transactional(readOnly = true)
+    public Meeting getMeetingByRandomUrlOrThrow(String randomUrl) {
+        return meetingRepository.findByRandomUrl(randomUrl)
+                .orElseThrow(() -> new BusinessException(ErrorCode.MEETING_NOT_FOUND));
     }
 
     // ── 내부 유틸 ──────────────────────────────
@@ -184,5 +206,15 @@ public class MeetingService {
             builder.append(URL_CHAR_POOL.charAt(idx));
         }
         return builder.toString();
+    }
+
+    private Meeting findMeetingInternal(Integer meetingId) {
+        return meetingRepository.findById(meetingId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.MEETING_NOT_FOUND));
+    }
+
+    private Meeting findMeetingByRandomUrlInternal(String randomUrl) {
+        return meetingRepository.findByRandomUrl(randomUrl)
+                .orElseThrow(() -> new BusinessException(ErrorCode.MEETING_NOT_FOUND));
     }
 }

@@ -1,9 +1,9 @@
 package com.back.nbe9112team06.domain.timeblock.service;
 
 import com.back.nbe9112team06.domain.meeting.entity.Meeting;
-import com.back.nbe9112team06.domain.meeting.repository.MeetingRepository;
+import com.back.nbe9112team06.domain.meeting.service.MeetingService;
 import com.back.nbe9112team06.domain.participant.entity.Participant;
-import com.back.nbe9112team06.domain.participant.repository.ParticipantRepository;
+import com.back.nbe9112team06.domain.participant.service.ParticipantService;
 import com.back.nbe9112team06.domain.timeblock.dto.ParticipantsScheduleResponse;
 import com.back.nbe9112team06.domain.timeblock.dto.TimeBlockDeleteRequest;
 import com.back.nbe9112team06.domain.timeblock.dto.TimeBlockRequest;
@@ -26,17 +26,13 @@ import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
 
 @Service
 @RequiredArgsConstructor
 public class TimeBlockService {
 
-    private final MeetingRepository meetingRepository;
-    private final ParticipantRepository participantRepository;
+    private final MeetingService meetingService;
+    private final ParticipantService participantService;
     private final TimeBlockRepository timeBlockRepository;
     private final AvailableDateTimeRepository availableDateTimeRepository;
     private final AvailableTimeRepository availableTimeRepository;
@@ -45,15 +41,13 @@ public class TimeBlockService {
     @Transactional
     public void registerTimeBlock(Integer meetingId, TimeBlockRequest request) {
         // 이 모임이 존재하는지 (Meeting 존재)
-        Meeting meeting = meetingRepository.findById(meetingId)
-                .orElseThrow(() -> new BusinessException(ErrorCode.NOT_FOUND, "존재하지 않는 모임입니다."));
+        Meeting meeting = meetingService.getMeetingOrThrow(meetingId);
 
         // 요청한 사람이 이 모임 참여자인지 (Participant 인증)
-        Participant participant = participantRepository.findByMeetingAndGuestNameAndGuestPassword(
+        Participant participant = participantService.findParticipantOrThrow(
                 meeting,
                 request.getGuestName(),
-                request.getGuestPassword())
-        .orElseThrow(() -> new BusinessException(ErrorCode.ACCESS_DENIED, "이 모임 참여자가 아닙니다."));
+                request.getGuestPassword());
 
         // 시간표를 등록한 적이 있는지 (TimeBlock 중복)
         timeBlockRepository.findByMeetingAndParticipant(meeting, participant)
@@ -89,15 +83,12 @@ public class TimeBlockService {
     @Transactional
     public void deleteTimeBlock(Integer meetingId, TimeBlockDeleteRequest timeBlockDeleteRequest){
         //  Meeting 존재 여부 확인
-        Meeting meeting = meetingRepository.findById(meetingId)
-                .orElseThrow(() -> new BusinessException(ErrorCode.NOT_FOUND, "존재하지 않는 모임입니다."));
-
+        Meeting meeting = meetingService.getMeetingOrThrow(meetingId);
         // 요청한 사람이 이 모임 참여자인지 (Participant 인증)
-        Participant participant = participantRepository.findByMeetingAndGuestNameAndGuestPassword(
-                        meeting,
-                        timeBlockDeleteRequest.getGuestName(),
-                        timeBlockDeleteRequest.getGuestPassword())
-                .orElseThrow(() -> new BusinessException(ErrorCode.ACCESS_DENIED, "이 모임 참여자가 아닙니다."));
+        Participant participant = participantService.findParticipantOrThrow(
+                meeting,
+                timeBlockDeleteRequest.getGuestName(),
+                timeBlockDeleteRequest.getGuestPassword());
 
         // 삭제할 TimeBlock가 없음
         TimeBlock timeBlock = timeBlockRepository.findByMeetingAndParticipant(meeting, participant)
@@ -105,7 +96,7 @@ public class TimeBlockService {
 
         // TimeBlock 먼저 삭제 (participant_id FK 제거), 이후 Participant 삭제
         timeBlockRepository.delete(timeBlock);
-        participantRepository.delete(participant);
+        participantService.deleteParticipant(participant);
     }
 
     // ── 참여자 목록 ──────────────────────────────

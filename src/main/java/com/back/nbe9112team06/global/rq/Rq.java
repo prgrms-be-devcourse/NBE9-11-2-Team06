@@ -73,9 +73,9 @@ public class Rq {
         Cookie cookie = new Cookie(cookieName, token);
         cookie.setPath("/");
         cookie.setHttpOnly(true);
-        cookie.setSecure(cookieSecure);  // HTTPS 환경에서만 전송
-        cookie.setAttribute("SameSite", "Strict");  // CSRF 방어
-        cookie.setMaxAge(cookieMaxAge);  // 설정값 기반 동적 적용
+        cookie.setSecure(cookieSecure);
+        cookie.setAttribute("SameSite", "Strict");
+        cookie.setMaxAge(cookieMaxAge);
         response.addCookie(cookie);
     }
 

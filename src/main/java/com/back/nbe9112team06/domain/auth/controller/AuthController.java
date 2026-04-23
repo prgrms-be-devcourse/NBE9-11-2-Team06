@@ -57,7 +57,6 @@ public class AuthController {
                       "code": "201-1",
                       "message": "로그인 성공",
                       "data": {
-                        "memberId": 1,
                         "nickname": "gildong"
                       }
                     }
@@ -72,7 +71,7 @@ public class AuthController {
         rq.issueAccessTokenCookie(result.accessToken());
 
         return new ApiResponse<>("201-1","로그인 성공",
-                new LoginResponse(result.memberId(), result.nickname())
+                new LoginResponse(result.nickname())
         );
     }
 
@@ -96,7 +95,6 @@ public class AuthController {
                       "code": "200-1",
                       "message": "조회 성공",
                       "data": {
-                        "memberId": 1,
                         "nickname": "gildong"
                       }
                     }
@@ -107,7 +105,7 @@ public class AuthController {
     public ApiResponse<LoginResponse> getMyInfo() {
         Member actor = rq.getActor();
         return new ApiResponse<>(
-                "200-1","조회 성공", new LoginResponse(actor.getId(), actor.getNickname())
+                "200-1","조회 성공", new LoginResponse(actor.getNickname())
         ); // 추후에 개인정보 추가
     }
 

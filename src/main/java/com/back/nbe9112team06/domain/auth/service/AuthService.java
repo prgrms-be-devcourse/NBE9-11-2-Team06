@@ -38,4 +38,5 @@ public class AuthService {
                 member.getNickname()
         );
     }
+
 }

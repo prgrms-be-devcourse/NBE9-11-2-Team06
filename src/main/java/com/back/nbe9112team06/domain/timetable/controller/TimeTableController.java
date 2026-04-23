@@ -21,7 +21,7 @@ public class TimeTableController {
 
     @GetMapping("/{meetingId}/timetable")
     public ApiResponse<TimeTableResponse> getTimeTable(@PathVariable Integer meetingId) {
-        // timeTableService.aggregate(meetingId); // TODO: 병합 시 TimeBlock POST 후 실행되도록 수정
+        timeTableService.aggregate(meetingId);
         return new ApiResponse<>("200-1", "타임테이블 조회 성공", timeTableService.getTimeTable(meetingId));
     }
 
