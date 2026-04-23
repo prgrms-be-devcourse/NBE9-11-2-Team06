@@ -1,6 +1,7 @@
 package com.back.nbe9112team06.domain.timeblock.entity;
 
 import com.back.nbe9112team06.domain.meeting.entity.Meeting;
+import com.back.nbe9112team06.domain.participant.entity.Participant;
 import com.back.nbe9112team06.global.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -18,8 +19,9 @@ public class TimeBlock extends BaseEntity {
     @JoinColumn(name = "meeting_id")
     private Meeting meeting;
 
-    @Column(name = "participant_name")
-    private String participantName;
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "participant_id")
+    private Participant participant;
 
     @OneToMany(mappedBy = "timeBlock", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<AvailableDateTime> availableDateTimes = new ArrayList<>();
@@ -27,6 +29,12 @@ public class TimeBlock extends BaseEntity {
     @Column(name = "created_by")
     private String createdBy;
 
-    @Column(name = "modified_by")
-    private String modifiedBy;
+    public static TimeBlock create(Meeting meeting, Participant participant) {
+        TimeBlock timeBlock = new TimeBlock();
+        timeBlock.meeting = meeting;
+        timeBlock.participant = participant;
+        timeBlock.createdBy = participant.getGuestName();
+        return timeBlock;
+    }
+
 }

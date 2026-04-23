@@ -30,6 +30,14 @@ public class AvailableTime extends BaseEntity {
     @Column(name = "created_by")
     private String createdBy;
 
-    @Column(name = "modified_by")
-    private String modifiedBy;
+    public static AvailableTime create(AvailableDateTime availableDateTime, TimeBlock timeBlock, Meeting meeting, LocalTime time) {
+        AvailableTime availableTime = new AvailableTime();
+        availableTime.availableDateTime = availableDateTime;
+        availableTime.timeBlock = timeBlock;
+        availableTime.meeting = meeting;
+        availableTime.time = time;
+        availableTime.createdBy = timeBlock.getParticipant().getGuestName();
+        return availableTime;
+    }
+
 }
