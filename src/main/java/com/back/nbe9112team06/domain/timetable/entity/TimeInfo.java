@@ -19,14 +19,6 @@ public class TimeInfo extends BaseEntity {
     @JoinColumn(name = "date_id")
     private DateInfo dateInfo;
 
-//    @ManyToOne(fetch = FetchType.LAZY)
-//    @JoinColumn(name = "time_table_id")
-//    private TimeTable timeTable;
-
-//    @ManyToOne(fetch = FetchType.LAZY)
-//    @JoinColumn(name = "meeting_id")
-//    private Meeting meeting;
-
     private LocalTime time;
 
     @OneToMany(mappedBy = "timeInfo", cascade = CascadeType.ALL, orphanRemoval = true)

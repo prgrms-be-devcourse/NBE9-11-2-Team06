@@ -19,6 +19,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
+import static com.back.nbe9112team06.global.springDoc.example.AuthApiExamples.*;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/auth")
@@ -52,15 +54,7 @@ public class AuthController {
                     schema = @Schema(implementation = ApiResponse.class),
                     examples = @ExampleObject(
                             name = "success",
-                            value = """
-                    {
-                      "code": "201-1",
-                      "message": "로그인 성공",
-                      "data": {
-                        "nickname": "gildong"
-                      }
-                    }
-                    """
+                            value = LOGIN_SUCCESS_JSON
                     )
             )
     )
@@ -90,15 +84,7 @@ public class AuthController {
                     schema = @Schema(implementation = ApiResponse.class),
                     examples = @ExampleObject(
                             name = "success",
-                            value = """
-                    {
-                      "code": "200-1",
-                      "message": "조회 성공",
-                      "data": {
-                        "nickname": "gildong"
-                      }
-                    }
-                    """
+                            value = GET_MY_INFO_SUCCESS_JSON
                     )
             )
     )
@@ -114,7 +100,8 @@ public class AuthController {
             summary = "로그아웃",
             description = "클라이언트 측 액세스 토큰 쿠키를 제거합니다."
     )
-    @CommonErrorResponses                    //  500 만 필요하지만 일관성을 위해 적용
+    @CommonErrorResponses
+    @AuthErrorResponses
     @io.swagger.v3.oas.annotations.responses.ApiResponse(
             responseCode = "200",
             description = "로그아웃 성공",
@@ -122,13 +109,7 @@ public class AuthController {
                     mediaType = MediaType.APPLICATION_JSON_VALUE,
                     schema = @Schema(implementation = ApiResponse.class),
                     examples = @ExampleObject(
-                            value = """
-                    {
-                      "code": "200-1",
-                      "message": "로그아웃 성공",
-                      "data": null
-                    }
-                    """
+                            value = LOGOUT_SUCCESS_JSON
                     )
             )
     )
