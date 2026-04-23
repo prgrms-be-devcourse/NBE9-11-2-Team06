@@ -8,11 +8,12 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import java.lang.annotation.*;
 
 /**
- * 인증 도메인 특화 오류 응답 (로그인 실패: AUTH-004)
+ * 로그인 실패 특화 오류 응답 (AUTH-004)
  * <p>
- * ⚠️ MEMBER-001(회원없음) 은 Member 도메인 책임이므로 포함하지 않음
- * 내부적으로 MemberService 호출 시 발생하더라도,
- * AuthController 는 이를 AUTH-004 로 추상화하여 응답합니다.
+ * ⚠️ 이 어노테이션은 로그인 엔드포인트 (/api/auth/login) 전용입니다.
+ * 다른 인증 필요 엔드포인트는 {@link AuthErrorResponses} 를 사용하세요.
+ * <p>
+ * 보안 원칙: 이메일/비밀번호 중 어느 것이 틀렸는지 구분하지 않고 통일된 응답 반환
  */
 @Target({ElementType.METHOD, ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
@@ -26,15 +27,15 @@ import java.lang.annotation.*;
                 examples = @ExampleObject(
                         name = "invalidCredentials",
                         value = """
-                {
-                  "type": "https://api.nbe9112team06.com/errors/auth/004",
-                  "title": "Unauthorized",
-                  "status": 401,
-                  "detail": "이메일 또는 비밀번호가 올바르지 않습니다.",
-                  "errorCode": "AUTH-004",
-                  "timestamp": "2024-01-15T10:30:00Z"
-                }
-                """
+                        {
+                          "type": "https://api.nbe9112team06.com/errors/auth/004",
+                          "title": "Unauthorized",
+                          "status": 401,
+                          "detail": "이메일 또는 비밀번호가 올바르지 않습니다.",
+                          "errorCode": "AUTH-004",
+                          "timestamp": "2024-01-15T10:30:00Z"
+                        }
+                        """
                 )
         )
 )

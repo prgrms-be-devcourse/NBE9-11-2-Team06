@@ -21,6 +21,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
+import static com.back.nbe9112team06.global.springDoc.example.MemberApiExamples.*;
+
 
 @RestController
 @RequestMapping("/api/members")
@@ -35,8 +37,16 @@ public class MemberController {
             summary = "회원가입",
             description = """
             새로운 사용자를 등록합니다.
-            - 이메일 형식 검증, 비밀번호 길이(8~20자), 닉네임 길이(2~20자) 검증 수행
-            - 타임존은 `ASIA_SEOUL`, `UTC`, `AMERICA_NEW_YORK` 중 선택
+            
+            ### ✅ 검증 규칙
+            - `email`: 올바른 이메일 형식, 필수
+            - `password`: 8~20자, 필수
+            - `nickname`: 2~20자, 필수
+            - `timezone`: `ASIA_SEOUL`, `UTC`, `AMERICA_NEW_YORK` 중 선택
+            
+            ### 🔐 보안
+            - 비밀번호는 암호화되어 저장됨
+            - 응답에 민감정보 (비밀번호, 해시) 미포함
             """
     )
     @CommonErrorResponses
@@ -49,17 +59,7 @@ public class MemberController {
                     schema = @Schema(implementation = ApiResponse.class),
                     examples = @ExampleObject(
                             name = "success",
-                            value = """
-                    {
-                      "code": "201-1",
-                      "message": "회원가입에 성공하셨습니다",
-                      "data": {
-                        "memberId": 1,
-                        "email": "user@example.com",
-                        "nickname": "gildong"
-                      }
-                    }
-                    """
+                            value = SIGNUP_SUCCESS_JSON
                     )
             )
     )
@@ -74,7 +74,10 @@ public class MemberController {
     @PostMapping("/check-email")
     @Operation(
             summary = "이메일 중복 체크",
-            description = "가입 가능한 이메일인지 확인합니다."
+            description = """
+            가입 가능한 이메일인지 확인합니다.
+            - 이메일 형식 검증 수행
+            """
     )
     @CommonErrorResponses
     @io.swagger.v3.oas.annotations.responses.ApiResponse(
@@ -84,12 +87,8 @@ public class MemberController {
                     mediaType = MediaType.APPLICATION_JSON_VALUE,
                     schema = @Schema(implementation = ApiResponse.class),
                     examples = {
-                            @ExampleObject(name = "available", value = """
-                    {"code":"200-1","message":"사용 가능한 이메일입니다.","data":{"available":true}}
-                    """),
-                            @ExampleObject(name = "duplicate", value = """
-                    {"code":"200-1","message":"이미 등록된 이메일입니다.","data":{"available":false}}
-                    """)
+                            @ExampleObject(name = "available", value = CHECK_EMAIL_AVAILABLE_JSON),
+                            @ExampleObject(name = "duplicate", value = CHECK_EMAIL_DUPLICATE_JSON)
                     }
             )
     )
@@ -106,7 +105,14 @@ public class MemberController {
     @DeleteMapping
     @Operation(
             summary = "회원 탈퇴",
-            description = "현재 로그인한 사용자의 계정을 삭제합니다. 성공 시 액세스 토큰 쿠키를 초기화합니다."
+            description = """
+            현재 로그인한 사용자의 계정을 삭제합니다.
+            
+            ### 🔐 보안
+            - 인증 필요 (accessToken 쿠키)
+            - 성공 시 `accessToken` 쿠키를 만료 처리 (maxAge=0)
+            - 삭제된 계정은 복구 불가
+            """
     )
     @CommonErrorResponses
     @AuthErrorResponses
@@ -118,13 +124,7 @@ public class MemberController {
                     mediaType = MediaType.APPLICATION_JSON_VALUE,
                     schema = @Schema(implementation = ApiResponse.class),
                     examples = @ExampleObject(
-                            value = """
-                    {
-                      "code": "200-1",
-                      "message": "회원 탈퇴가 완료되었습니다.",
-                      "data": null
-                    }
-                    """
+                            value = DELETE_MEMBER_SUCCESS_JSON
                     )
             )
     )
